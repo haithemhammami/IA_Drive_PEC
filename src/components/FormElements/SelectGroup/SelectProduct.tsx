@@ -1,43 +1,94 @@
 "use client";
-import React, { useState } from "react";
 
-const SelectProduct: React.FC = () => {
-  const [selectedOption, setSelectedOption] = useState<string>("");
+import React, { useState, useEffect } from "react";
+
+export interface Product {
+  id: number;
+  name: string;
+  category?: string;
+}
+
+export interface SelectProductProps {
+  products?: Product[];
+  selectedProduct?: Product | null;
+  onProductChange?: (product: Product) => void;
+}
+
+const SelectProduct: React.FC<SelectProductProps> = ({
+  products: propProducts,
+  selectedProduct,
+  onProductChange,
+}) => {
+  const [products, setProducts] = useState<Product[]>(propProducts || []);
   const [isOptionSelected, setIsOptionSelected] = useState<boolean>(false);
+  const [selectedValue, setSelectedValue] = useState<number | "">("");
 
-  const changeTextColor = () => {
-    setIsOptionSelected(true);
+  // Fetch products if not provided via props
+  useEffect(() => {
+    if (propProducts) {
+      setProducts(propProducts);
+    } else {
+      const fetchProducts = async () => {
+        try {
+          const response = await fetch("/api/products");
+          if (!response.ok) {
+            throw new Error("Erreur lors de la récupération des produits");
+          }
+          const data = await response.json();
+          setProducts(data);
+        } catch (error) {
+          console.error("Erreur :", error);
+        }
+      };
+
+      fetchProducts();
+    }
+  }, [propProducts]);
+
+  // Update selected value if a product is pre-selected
+  useEffect(() => {
+    if (selectedProduct) {
+      setSelectedValue(selectedProduct.id);
+      setIsOptionSelected(true);
+    }
+  }, [selectedProduct]);
+
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = Number.parseInt(e.target.value);
+    setSelectedValue(selectedId);
+
+    const selectedProduct = products.find((product) => product.id === selectedId);
+    if (selectedProduct) {
+      if (onProductChange) {
+        onProductChange(selectedProduct);
+      }
+      setIsOptionSelected(true);
+    }
   };
 
   return (
     <div className="">
       <label className="mb-3 block text-body-sm font-medium text-dark dark:text-white">
-       Selectionner un Produit
+        Sélectionner un Produit
       </label>
 
       <div className="relative z-20 bg-transparent dark:bg-dark-2">
         <select
-          value={selectedOption}
-          onChange={(e) => {
-            setSelectedOption(e.target.value);
-            changeTextColor();
-          }}
+          value={selectedValue}
+          onChange={handleSelectionChange}
           className={`relative z-20 w-full appearance-none rounded-[7px] border border-stroke bg-transparent px-5.5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary ${
             isOptionSelected ? "text-dark dark:text-white" : ""
           }`}
         >
           <option value="" disabled className="text-dark-6">
-            Sélectionner votre Produit 
+            Sélectionner votre Produit
           </option>
-          <option value="USA" className="text-dark-6">
-            a
-          </option>
-          <option value="UK" className="text-dark-6">
-            b
-          </option>
-          <option value="Canada" className="text-dark-6">
-            c
-          </option>
+          {Array.isArray(products) &&
+            products.map((product) => (
+              <option key={product.id} value={product.id} className="text-dark-6">
+                {product.name}
+              </option>
+            ))}
         </select>
 
         <span className="absolute right-4 top-1/2 z-30 -translate-y-1/2">
