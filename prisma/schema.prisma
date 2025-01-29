@@ -216,3 +216,18 @@ model Alertes {
   message        String
   dateAlerte     DateTime         @default(now())
 }
+
+//Tableau fournisseur
+model Supplier {
+  id                Int       @id @default(autoincrement())
+  logo              String
+  name              String
+  productCategories String   @map("product_categories")
+  minPurchase       Int      @map("min_purchase")
+  deliveryTime      String   @map("delivery_time")
+  phoneNumber       String   @map("phone_number")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("suppliers")
+}
