@@ -19,6 +19,15 @@ const config: Config = {
       ...defaultTheme.screens,
     },
     extend: {
+      textColor: {
+        'foreground': 'hsl(var(--foreground))',
+      },
+      backgroundColor: {
+        'background': 'hsl(var(--background))',
+      },
+      borderColor: {
+        'border': 'var(--border)',
+      },
       colors: {
         current: "currentColor",
         transparent: "transparent",
