@@ -2,12 +2,13 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export function HeroSection({ onStartClick }: { onStartClick: () => void }) {
   return (
     <section className="relative overflow-hidden py-20 sm:py-32" id="about">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-x-8 lg:gap-y-20">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-x-8 lg:gap-y-20 items-center">
           <div className="relative z-10 mx-auto max-w-2xl lg:col-span-7 lg:max-w-none lg:pt-6 xl:col-span-6">
             <motion.h1
               className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl md:text-6xl"
@@ -36,7 +37,7 @@ export function HeroSection({ onStartClick }: { onStartClick: () => void }) {
               <Button onClick={onStartClick}>Commencer</Button>
               <Button
                 variant="outline"
-                onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() => document.getElementById("trustfeatures")?.scrollIntoView({ behavior: "smooth" })}
               >
                 En savoir plus
               </Button>
@@ -48,12 +49,13 @@ export function HeroSection({ onStartClick }: { onStartClick: () => void }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <img
-              src="/placeholder.svg?height=784&width=1016"
-              alt="Capture d'écran de l'application"
-              className="rounded-xl shadow-xl ring-1 ring-gray-400/10 dark:ring-gray-700/10"
+            <Image
+              src="/hero.png"
+              alt="IA_Drive Hero Image"
               width={1016}
               height={784}
+              className="rounded-xl shadow-xl ring-1 ring-gray-400/10 dark:ring-gray-700/10 w-full h-auto object-cover transition-transform duration-300 hover:scale-105 sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto"
+              priority
             />
           </motion.div>
         </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
-import { Moon, Sun, ShoppingCart, Menu, User } from "lucide-react"
+import { Moon, Sun, ShoppingCart, Menu, User, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -15,7 +15,7 @@ export function Header() {
   const [isWaving, setIsWaving] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsWaving(true), 2000)
+    const timer = setTimeout(() => setIsWaving(true), 500)
     return () => clearTimeout(timer)
   }, [])
 
@@ -24,6 +24,7 @@ export function Header() {
     if (section) {
       section.scrollIntoView({ behavior: "smooth" })
     }
+    setIsMenuOpen(false)
   }
 
   return (
@@ -40,7 +41,7 @@ export function Header() {
                 <span className="sr-only">Catégories</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[200px]">
+            <DropdownMenuContent align="start" className="w-[200px] bg-white dark:bg-gray-800">
               <DropdownMenuItem>
                 <Link href="/fruits-vegetables" className="flex items-center">
                   🍎 Fruits et Légumes
@@ -64,7 +65,7 @@ export function Header() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <nav className="ml-auto flex items-center space-x-6 text-sm font-medium">
+        <nav className="hidden md:flex ml-auto items-center space-x-6 text-sm font-medium">
           <Button variant="ghost" onClick={() => scrollToSection("about")}>
             À propos
           </Button>
@@ -76,35 +77,45 @@ export function Header() {
           </Button>
         </nav>
         <div className="ml-auto flex items-center space-x-4">
-          <Input type="search" placeholder="Rechercher..." className="h-9 w-[200px] lg:w-[300px]" />
+          <Input type="search" placeholder="Rechercher..." className="h-9 w-[200px] lg:w-[300px] hidden md:block" />
           <Button variant="ghost" size="icon" className="relative" aria-label="Panier">
             <ShoppingCart className="h-5 w-5" />
             <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
               3
             </span>
           </Button>
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {isWaving ? (
               <motion.div
                 key="waving"
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.5 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5 }}
               >
                 <Button variant="ghost" size="icon" aria-label="Compte utilisateur">
-                  <motion.div
-                    animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
-                    transition={{ duration: 2.5, loop: Number.POSITIVE_INFINITY, repeatDelay: 7 }}
-                  >
-                    <User className="h-5 w-5" />
-                  </motion.div>
+                  <Link href="/api/auth/login">
+                    <motion.div
+                      animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
+                      transition={{ duration: 2.5, loop: Number.POSITIVE_INFINITY, repeatDelay: 7 }}
+                    >
+                      <User className="h-5 w-5" />
+                    </motion.div>
+                  </Link>
                 </Button>
               </motion.div>
             ) : (
-              <motion.div key="static" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <motion.div
+                key="static"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5 }}
+              >
                 <Button variant="ghost" size="icon" aria-label="Compte utilisateur">
-                  <User className="h-5 w-5" />
+                  <Link href="/api/auth/login">
+                    <User className="h-5 w-5" />
+                  </Link>
                 </Button>
               </motion.div>
             )}
@@ -119,8 +130,33 @@ export function Header() {
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Changer de thème</span>
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Menu"
+          >
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
       </div>
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <nav className="flex flex-col items-center space-y-4 py-4">
+            <Button variant="ghost" onClick={() => scrollToSection("about")}>
+              À propos
+            </Button>
+            <Button variant="ghost" onClick={() => scrollToSection("features")}>
+              Fonctionnalités
+            </Button>
+            <Button variant="ghost" onClick={() => scrollToSection("tutorial")}>
+              Guide
+            </Button>
+            <Input type="search" placeholder="Rechercher..." className="h-9 w-full max-w-[300px]" />
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

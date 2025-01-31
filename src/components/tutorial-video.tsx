@@ -9,36 +9,48 @@ export function TutorialVideo() {
   const [isPlaying, setIsPlaying] = useState(false)
 
   return (
-    <section className="py-20 sm:py-32">
+    <section className="py-20 sm:py-32" id="tutorial">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold text-center mb-8">Comment ça marche</h2>
         <motion.div
-          className="relative overflow-hidden rounded-2xl bg-gray-900 shadow-xl"
+          className="relative overflow-hidden rounded-2xl bg-gray-900 shadow-xl max-w-3xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           {!isPlaying && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white"
-              onClick={() => setIsPlaying(true)}
-            >
-              <Play className="h-20 w-20" />
-            </Button>
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+              <Button
+                variant="ghost"
+                size="lg"
+                className="text-white hover:text-primary transition-all duration-300 transform hover:scale-110"
+                onClick={() => setIsPlaying(true)}
+              >
+                <motion.div
+                  className="relative"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <Play className="h-16 w-16" />
+                  <div className="absolute inset-0 bg-white opacity-20 rounded-full blur-md animate-pulse"></div>
+                </motion.div>
+              </Button>
+            </div>
           )}
           {isPlaying ? (
-            <video className="aspect-video w-full" autoPlay controls>
-              <source src="/path-to-your-video.mp4" type="video/mp4" />
-              Votre navigateur ne prend pas en charge la balise vidéo.
-            </video>
+            <iframe
+              className="aspect-video w-full"
+              src="https://www.youtube.com/embed/N0ADpGqGhY8?autoplay=1"
+              title="Tutoriel IA_Drive"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
           ) : (
             <img
-              src="/placeholder.svg?height=720&width=1280"
+              src={`https://img.youtube.com/vi/N0ADpGqGhY8/maxresdefault.jpg`}
               alt="Miniature de la vidéo tutorielle"
-              className="aspect-video w-full"
-              width={1280}
-              height={720}
+              className="aspect-video w-full object-cover"
             />
           )}
         </motion.div>
