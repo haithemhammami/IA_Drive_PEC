@@ -231,3 +231,13 @@ model Supplier {
 
   @@map("suppliers")
 }
+
+
+model AvisGlobale {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  note        Int
+  commentaire String
+  createdAt   DateTime @default(now())
+   @@map("AvisGlobale")
+}
