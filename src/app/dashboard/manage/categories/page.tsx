@@ -4,8 +4,8 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 
 export const metadata: Metadata = {
-  title: "Next.js Form Elements Page | NextAdmin - Next.js Dashboard Kit",
-  description: "This is Next.js Form Elements page for NextAdmin Dashboard Kit",
+  title: "IA Drive PEC",
+  description: " Application Drive alimentaire enrichie par IA pour Admin ",
 };
 
 const FormElementsPage = () => {

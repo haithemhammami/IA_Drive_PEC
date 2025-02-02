@@ -37,22 +37,22 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Liens rapides</h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <Link href="/about" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   À propos de nous
                 </Link>
               </li>
               <li>
-                <Link href="/features" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   Fonctionnalités
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   Tarifs
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   Nous contacter
                 </Link>
               </li>
@@ -62,22 +62,22 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Support</h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <Link href="/faq" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/help" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   Centre d'aide
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   Politique de confidentialité
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
+                <Link href="/" className="text-base text-gray-500 hover:text-gray-900 dark:hover:text-white">
                   Conditions d'utilisation
                 </Link>
               </li>

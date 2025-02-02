@@ -4,9 +4,8 @@ import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import AlertUser from "@/components/Alerts/AlertUsers";
 
 export const metadata: Metadata = {
-  title: "Next.js Alerts Page | NextAdmin - Next.js Dashboard Kit",
-  description: "This is Next.js Alerts page for NextAdmin Dashboard Kit",
-  // other metadata
+  title: "IA Drive PEC",
+  description: " Application Drive alimentaire enrichie par IA pour Admin ",
 };
 
 const Alerts = () => {

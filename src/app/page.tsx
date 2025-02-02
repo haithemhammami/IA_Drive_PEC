@@ -23,7 +23,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col">
       <AnnouncementBanner />
       <Header />
-      <HeroSection onStartClick={() => setIsAIAssistantOpen(true)} />
+      <HeroSection onStartClick={() => handleStartClick} />
       <FeatureShowcase />
       <TrustFeatures />
       <TutorialVideo />

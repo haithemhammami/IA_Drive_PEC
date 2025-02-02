@@ -4,9 +4,8 @@ import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import React from "react";
 
 export const metadata: Metadata = {
-  title:
-    "Smart Drive",
-  description: "This is Smart Drive Dashboard for Admin",
+  title: "IA Drive PEC",
+  description: " Application Drive alimentaire enrichie par IA pour Admin ",
 };
 
 export default function Home() {
