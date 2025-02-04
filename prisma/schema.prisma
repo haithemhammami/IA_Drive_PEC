@@ -53,13 +53,14 @@ model Produit {
   stock          Int
   categorie      Categorie       @relation(fields: [categorieId], references: [id])
   categorieId    Int
-  images         Image[]
+  image         String?
   utilisateurs   Utilisateur[]   @relation("Ajoute")
   commandeDetails DetailCommande[]
   alertes        Alertes[]       // Inverse relation for `Alertes`
   variantes      Variante[]      // Différentes options pour le produit (ex : tailles, couleurs)
   promotions     Promotion[]     // Promotions associées
   avis           Avis[]          // Avis clients
+  cartItems      Cart[]          // Produits dans le panier
 }
 
 // Catégories pour organiser les produits
@@ -71,8 +72,6 @@ model Categorie {
   createdAt DateTime  @default(now()) 
   updatedAt DateTime  @updatedAt
 }
-
-
 
 // Variantes d'un produit (ex : tailles, couleurs)
 model Variante {
@@ -188,13 +187,6 @@ model ModePaiement {
   paiements      Paiement[]       // Inverse relation for `Paiement`
 }
 
-// Images associées aux produits
-model Image {
-  id             Int              @id @default(autoincrement())
-  url            String
-  produit        Produit          @relation(fields: [produitId], references: [id])
-  produitId      Int
-}
 
 // Avis laissés par les utilisateurs sur les produits
 model Avis {
@@ -215,6 +207,14 @@ model Alertes {
   produitId      Int
   message        String
   dateAlerte     DateTime         @default(now())
+}
+
+// Modèle pour le panier
+model Cart {
+  id        Int      @id @default(autoincrement())
+  produit   Produit  @relation(fields: [produitId], references: [id])
+  produitId Int
+  quantite  Int      @default(1)
 }
 
 //Tableau fournisseur
