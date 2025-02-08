@@ -11,9 +11,20 @@ interface DataStats {
   growthRate: number
 }
 
+interface ProductStats {
+  totalProducts: number
+  newProductsThisMonth: number
+  growthRate: number
+}
+
 const DataStatsOne: React.FC = () => {
   const [totalCategories, setTotalCategories] = useState(0)
   const [categoryGrowthRate, setCategoryGrowthRate] = useState(0)
+  const [productStats, setProductStats] = useState<ProductStats>({
+    totalProducts: 0,
+    newProductsThisMonth: 0,
+    growthRate: 0,
+  })
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -26,7 +37,6 @@ const DataStatsOne: React.FC = () => {
         setTotalCategories(data.length)
 
         // Calculer le taux de croissance (basé sur le nombre de catégories ajoutées ce mois-ci)
-        // Cette logique devrait être adaptée selon vos besoins spécifiques
         const newCategoriesThisMonth = data.filter((cat: any) => {
           const createdDate = new Date(cat.createdAt)
           const now = new Date()
@@ -38,7 +48,21 @@ const DataStatsOne: React.FC = () => {
       }
     }
 
+    const fetchProductStats = async () => {
+      try {
+        const response = await fetch("/api/productsAdmin/stats")
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération des statistiques des produits")
+        }
+        const data = await response.json()
+        setProductStats(data)
+      } catch (error) {
+        console.error("Erreur lors de la récupération des statistiques des produits:", error)
+      }
+    }
+
     fetchCategories()
+    fetchProductStats()
   }, [])
 
   const dataStatsList: DataStats[] = [
@@ -78,8 +102,8 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#8155FF",
       title: "Total des Produits",
-      value: "0.0",
-      growthRate: 2.59,
+      value: productStats.totalProducts.toString(),
+      growthRate: productStats.growthRate,
     },
     {
       icon: (

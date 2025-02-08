@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "windows"]
 }
 
@@ -8,218 +8,215 @@ datasource db {
   url      = env("POSTGRES_URL")
 }
 
-// Utilisateurs et leurs informations de base
 model Utilisateur {
-  id            Int           @id @default(autoincrement())
+  id            Int        @id @default(autoincrement())
   nom           String
-  email         String        @unique
+  email         String     @unique
   passwordHash  String
   adresse       String?
   phone         String?
   resetToken    String?
-  isActive      Boolean       @default(true)
-  type          Role          @relation(fields: [typeId], references: [id])
-  typeId        Int
-  dateCreation  DateTime      @default(now())
-  commandes     Commande[]    @relation("CommandeClient")
-  produits      Produit[]     @relation("Ajoute")
-  avis          Avis[]        // Inverse relation for `Avis`
-  adresses      Adresse[]     // Historique d'adresses multiples
-  sessions     Session[]
+  isActive      Boolean    @default(true)
+  role          Role
+  dateCreation  DateTime   @default(now())
+  emailVerified Boolean    @default(false)
+  updatedAt     DateTime  @updatedAt
+  adresses      Adresse[]
+  avis          Avis[]
+  Cart          Cart[]
+  commandes     Commande[] @relation("CommandeClient")
+  sessions      Session[]
+  produits      Produit[]  @relation("Ajoute")
 }
 
-// Rôles définis pour les utilisateurs (ex : client, admin)
-model Role {
-  id            Int           @id @default(autoincrement())
-  nom           String
-  utilisateurs  Utilisateur[]
-}
-//Session pour jwt 
 model Session {
-  id        Int      @id @default(autoincrement())
+  id        Int         @id @default(autoincrement())
   userId    Int
   token     String
   expiresAt DateTime
   user      Utilisateur @relation(fields: [userId], references: [id])
 }
 
-
-// Produits disponibles à la vente
 model Produit {
-  id             Int             @id @default(autoincrement())
-  nom            String
-  description    String?
-  prix           Float
-  stock          Int
-  categorie      Categorie       @relation(fields: [categorieId], references: [id])
-  categorieId    Int
-  image         String?
-  utilisateurs   Utilisateur[]   @relation("Ajoute")
+  id              Int              @id @default(autoincrement())
+  nom             String
+  description     String?
+  prix            Float
+  stock           Int
+  categorieId     Int
+  image           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  alertes         Alertes[]
+  avis            Avis[]
+  cartItems       Cart[]
   commandeDetails DetailCommande[]
-  alertes        Alertes[]       // Inverse relation for `Alertes`
-  variantes      Variante[]      // Différentes options pour le produit (ex : tailles, couleurs)
-  promotions     Promotion[]     // Promotions associées
-  avis           Avis[]          // Avis clients
-  cartItems      Cart[]          // Produits dans le panier
+  categorie       Categorie        @relation(fields: [categorieId], references: [id])
+  promotions      Promotion[]
+  variantes       Variante[]
+  utilisateurs    Utilisateur[]    @relation("Ajoute")
 }
 
-// Catégories pour organiser les produits
 model Categorie {
   id        Int       @id @default(autoincrement())
   nom       String
-  logo      String?   // Le ? indique que c'est optionnel
-  produits  Produit[]
-  createdAt DateTime  @default(now()) 
+  logo      String?
+  createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  produits  Produit[]
 }
 
-// Variantes d'un produit (ex : tailles, couleurs)
 model Variante {
-  id            Int        @id @default(autoincrement())
-  produit       Produit    @relation(fields: [produitId], references: [id])
-  produitId     Int
-  nom           String
-  valeur        String
+  id        Int     @id @default(autoincrement())
+  produitId Int
+  nom       String
+  valeur    String
+  produit   Produit @relation(fields: [produitId], references: [id])
 }
 
-// Promotions appliquées aux produits
 model Promotion {
-  id            Int        @id @default(autoincrement())
-  produit       Produit?   @relation(fields: [produitId], references: [id])
-  produitId     Int?
-  reduction     Float
-  dateDebut     DateTime
-  dateFin       DateTime
+  id        Int      @id @default(autoincrement())
+  produitId Int?
+  reduction Float
+  dateDebut DateTime
+  dateFin   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime  @updatedAt
+  produit   Produit? @relation(fields: [produitId], references: [id])
 }
 
-// Commandes passées par les utilisateurs
 model Commande {
-  id             Int               @id @default(autoincrement())
-  client         Utilisateur       @relation("CommandeClient", fields: [clientId], references: [id])
-  clientId       Int
-  statut         CommandeStatut      @relation(fields: [statutId], references: [id])
-  statutId       Int
-  statutHistorique CommandeStatutHistorique[] // Historique des changements de statut
-  total          Float
-  dateCommande   DateTime          @default(now())
-  livraison      Livraison?
-  paiement       Paiement?
-  commandeDetails DetailCommande[]
+  id               Int                        @id @default(autoincrement())
+  clientId         Int
+  statutId         Int
+  total            Float
+  dateCommande     DateTime                   @default(now())
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+  client           Utilisateur                @relation("CommandeClient", fields: [clientId], references: [id])
+  statut           CommandeStatut             @relation(fields: [statutId], references: [id])
+  statutHistorique CommandeStatutHistorique[]
+  commandeDetails  DetailCommande[]
+  livraison        Livraison?
+  paiement         Paiement?
 }
 
-// Statuts possibles pour une commande (ex : en cours, expédié)
 model CommandeStatut {
-  id             Int                      @id @default(autoincrement())
-  statut         String                   @unique
-  commandes      Commande[]               // Inverse relation with `Commande`
-  statutHistorique CommandeStatutHistorique[] // Added inverse relation
+  id               Int                        @id @default(autoincrement())
+  statut           String                     @unique
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+  commandes        Commande[]
+  statutHistorique CommandeStatutHistorique[]
 }
 
-// Historique des statuts d'une commande
 model CommandeStatutHistorique {
-  id            Int        @id @default(autoincrement())
-  commande      Commande   @relation(fields: [commandeId], references: [id])
-  commandeId    Int
-  statut        CommandeStatut @relation(fields: [statutId], references: [id])
-  statutId      Int
-  dateStatut    DateTime   @default(now())
+  id         Int            @id @default(autoincrement())
+  commandeId Int
+  statutId   Int
+  dateStatut DateTime       @default(now())
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  commande   Commande       @relation(fields: [commandeId], references: [id])
+  statut     CommandeStatut @relation(fields: [statutId], references: [id])
 }
 
-// Détails des produits dans chaque commande
 model DetailCommande {
-  id             Int              @id @default(autoincrement())
-  commande       Commande         @relation(fields: [commandeId], references: [id])
-  commandeId     Int
-  produit        Produit          @relation(fields: [produitId], references: [id])
-  produitId      Int
-  quantite       Int
-  prixUnitaire   Float
+  id           Int      @id @default(autoincrement())
+  commandeId   Int
+  produitId    Int
+  quantite     Int
+  prixUnitaire Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  commande     Commande @relation(fields: [commandeId], references: [id])
+  produit      Produit  @relation(fields: [produitId], references: [id])
 }
 
-// Informations de livraison pour les commandes
 model Livraison {
-  id             Int              @id @default(autoincrement())
-  commande       Commande         @relation(fields: [commandeId], references: [id])
-  commandeId     Int @unique
-  adresse        String
-  typeLivraison  TypeLivraison    @relation(fields: [typeLivraisonId], references: [id])
+  id              Int           @id @default(autoincrement())
+  commandeId      Int           @unique
+  adresse         String
   typeLivraisonId Int
-  statut         String
-  dateLivraison  DateTime?
-  trackingNumber String?
+  statut          String
+  dateLivraison   DateTime?
+  trackingNumber  String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  commande        Commande      @relation(fields: [commandeId], references: [id])
+  typeLivraison   TypeLivraison @relation(fields: [typeLivraisonId], references: [id])
 }
 
-// Types de livraison disponibles (ex : standard, express)
 model TypeLivraison {
-  id            Int        @id @default(autoincrement())
-  type          String     @unique
-  livraisons    Livraison[]
+  id         Int         @id @default(autoincrement())
+  type       String      @unique
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  livraisons Livraison[]
 }
 
-// Adresses associées aux utilisateurs
 model Adresse {
-  id           Int         @id @default(autoincrement())
-  utilisateur  Utilisateur @relation(fields: [utilisateurId], references: [id])
+  id            Int         @id @default(autoincrement())
   utilisateurId Int
   adresse       String
   ville         String
   codePostal    String
   pays          String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
 }
 
-// Informations de paiement pour les commandes
 model Paiement {
-  id             Int              @id @default(autoincrement())
-  commande       Commande         @relation(fields: [commandeId], references: [id])
-  commandeId     Int @unique
+  id             Int          @id @default(autoincrement())
+  commandeId     Int          @unique
   montant        Float
-  mode           ModePaiement     @relation(fields: [modeId], references: [id])
   modeId         Int
   statutPaiement String
-  datePaiement   DateTime         @default(now())
+  datePaiement   DateTime     @default(now())
   transactionId  String?
+  commande       Commande     @relation(fields: [commandeId], references: [id])
+  mode           ModePaiement @relation(fields: [modeId], references: [id])
 }
 
-// Méthodes de paiement disponibles (ex : carte, PayPal)
 model ModePaiement {
-  id             Int              @id @default(autoincrement())
-  mode           String           @unique
-  paiements      Paiement[]       // Inverse relation for `Paiement`
+  id        Int        @id @default(autoincrement())
+  mode      String     @unique
+  paiements Paiement[]
 }
 
-
-// Avis laissés par les utilisateurs sur les produits
 model Avis {
-  id            Int        @id @default(autoincrement())
-  produit       Produit    @relation(fields: [produitId], references: [id])
+  id            Int         @id @default(autoincrement())
   produitId     Int
-  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
   utilisateurId Int
   note          Int
   commentaire   String?
-  dateAvis      DateTime   @default(now())
+  dateAvis      DateTime    @default(now())
+  produit       Produit     @relation(fields: [produitId], references: [id])
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
 }
 
-// Alertes et notifications pour les produits (ex : rupture de stock)
 model Alertes {
-  id             Int              @id @default(autoincrement())
-  produit        Produit          @relation(fields: [produitId], references: [id])  
-  produitId      Int
-  message        String
-  dateAlerte     DateTime         @default(now())
+  id         Int      @id @default(autoincrement())
+  produitId  Int
+  message    String
+  dateAlerte DateTime @default(now())
+  produit    Produit  @relation(fields: [produitId], references: [id])
 }
 
-// Modèle pour le panier
 model Cart {
-  id        Int      @id @default(autoincrement())
-  produit   Produit  @relation(fields: [produitId], references: [id])
-  produitId Int
-  quantite  Int      @default(1)
+  id            Int         @id @default(autoincrement())
+  utilisateurId Int
+  produitId     Int
+  quantite      Int         @default(1)
+  prix          Float
+  image         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  produit       Produit     @relation(fields: [produitId], references: [id])
+  Utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
 }
 
-//Tableau fournisseur
 model Supplier {
-  id                Int       @id @default(autoincrement())
+  id                Int      @id @default(autoincrement())
   logo              String
   name              String
   productCategories String   @map("product_categories")
@@ -232,12 +229,17 @@ model Supplier {
   @@map("suppliers")
 }
 
-
 model AvisGlobale {
   id          Int      @id @default(autoincrement())
   nom         String
   note        Int
   commentaire String
   createdAt   DateTime @default(now())
-   @@map("AvisGlobale")
+
+  @@map("AvisGlobale")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
 }
