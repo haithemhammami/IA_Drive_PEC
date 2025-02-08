@@ -6,16 +6,19 @@ import { useState, useEffect } from "react"
 export interface Product {
   id: number
   nom: string
-  description?: string
+  description: string
   prix: number
   stock: number
   categorieId: number
+  image: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export interface SelectProductProps {
   products?: Product[]
   selectedProduct?: Product | null
-  onProductChange?: (product: Product) => void
+  onProductChange?: (product: Product | null) => void
   categoryId?: number | null
 }
 
@@ -69,13 +72,11 @@ const SelectProduct: React.FC<SelectProductProps> = ({
     const selectedId = Number.parseInt(e.target.value)
     setSelectedValue(selectedId)
 
-    const selectedProduct = filteredProducts.find((product) => product.id === selectedId)
-    if (selectedProduct) {
-      if (onProductChange) {
-        onProductChange(selectedProduct)
-      }
-      setIsOptionSelected(true)
+    const selectedProduct = filteredProducts.find((product) => product.id === selectedId) || null
+    if (onProductChange) {
+      onProductChange(selectedProduct)
     }
+    setIsOptionSelected(!!selectedProduct)
   }
 
   return (

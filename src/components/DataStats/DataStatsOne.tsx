@@ -11,58 +11,62 @@ interface DataStats {
   growthRate: number
 }
 
-interface ProductStats {
-  totalProducts: number
-  newProductsThisMonth: number
-  growthRate: number
+interface Product {
+  id: number
+  nom: string
+  description: string
+  prix: number
+  stock: number
+  categorieId: number
+  image: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 const DataStatsOne: React.FC = () => {
   const [totalCategories, setTotalCategories] = useState(0)
   const [categoryGrowthRate, setCategoryGrowthRate] = useState(0)
-  const [productStats, setProductStats] = useState<ProductStats>({
-    totalProducts: 0,
-    newProductsThisMonth: 0,
-    growthRate: 0,
-  })
+  const [totalProducts, setTotalProducts] = useState(0)
+  const [productGrowthRate, setProductGrowthRate] = useState(0)
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchStats = async () => {
       try {
-        const response = await fetch("/api/categoriesAdmin")
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des catégories")
-        }
-        const data = await response.json()
-        setTotalCategories(data.length)
+        const [categoriesResponse, productsResponse] = await Promise.all([
+          fetch("/api/categoriesAdmin"),
+          fetch("/api/productsAdmin"),
+        ])
 
-        // Calculer le taux de croissance (basé sur le nombre de catégories ajoutées ce mois-ci)
-        const newCategoriesThisMonth = data.filter((cat: any) => {
+        if (!categoriesResponse.ok || !productsResponse.ok) {
+          throw new Error("Failed to fetch stats")
+        }
+
+        const categoriesData = await categoriesResponse.json()
+        const productsData: Product[] = await productsResponse.json()
+
+        // Catégories
+        setTotalCategories(categoriesData.length)
+        const newCategoriesThisMonth = categoriesData.filter((cat: any) => {
           const createdDate = new Date(cat.createdAt)
           const now = new Date()
           return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear()
         }).length
         setCategoryGrowthRate(newCategoriesThisMonth)
+
+        // Produits
+        setTotalProducts(productsData.length)
+        const now = new Date()
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const newProductsThisMonth = productsData.filter(
+          (product) => new Date(product.createdAt) >= firstDayOfMonth,
+        ).length
+        setProductGrowthRate(newProductsThisMonth)
       } catch (error) {
-        console.error("Erreur lors de la récupération des catégories:", error)
+        console.error("Error fetching stats:", error)
       }
     }
 
-    const fetchProductStats = async () => {
-      try {
-        const response = await fetch("/api/productsAdmin/stats")
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des statistiques des produits")
-        }
-        const data = await response.json()
-        setProductStats(data)
-      } catch (error) {
-        console.error("Erreur lors de la récupération des statistiques des produits:", error)
-      }
-    }
-
-    fetchCategories()
-    fetchProductStats()
+    fetchStats()
   }, [])
 
   const dataStatsList: DataStats[] = [
@@ -102,8 +106,8 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#8155FF",
       title: "Total des Produits",
-      value: productStats.totalProducts.toString(),
-      growthRate: productStats.growthRate,
+      value: totalProducts.toString(),
+      growthRate: productGrowthRate,
     },
     {
       icon: (

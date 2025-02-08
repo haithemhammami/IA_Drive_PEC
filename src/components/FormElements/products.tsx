@@ -373,17 +373,7 @@ const FormElements: React.FC = () => {
                 <SelectProduct
                   products={products}
                   selectedProduct={selectedProduct}
-                  onProductChange={(product) => {
-                    setSelectedProduct(product)
-                    setModifiedProduct({
-                      nom: product.nom,
-                      description: product.description || "",
-                      prix: product.prix.toString(),
-                      stock: product.stock.toString(),
-                      categorieId: product.categorieId.toString(),
-                      image: null,
-                    })
-                  }}
+                  onProductChange={(product: Product | null) => setSelectedProduct(product)}
                   categoryId={selectedCategory?.id || null}
                 />
 
@@ -500,7 +490,7 @@ const FormElements: React.FC = () => {
                 <SelectProduct
                   products={products}
                   selectedProduct={selectedProduct}
-                  onProductChange={setSelectedProduct}
+                  onProductChange={(product: Product | null) => setSelectedProduct(product)}
                   categoryId={selectedCategory?.id || null}
                 />
 

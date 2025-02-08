@@ -11,6 +11,7 @@
   - Added the required column `updatedAt` to the `CommandeStatutHistorique` table without a default value. This is not possible if the table is not empty.
   - Added the required column `updatedAt` to the `DetailCommande` table without a default value. This is not possible if the table is not empty.
   - Added the required column `updatedAt` to the `Livraison` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `updatedAt` to the `Produit` table without a default value. This is not possible if the table is not empty.
   - Added the required column `updatedAt` to the `Promotion` table without a default value. This is not possible if the table is not empty.
   - Added the required column `updatedAt` to the `TypeLivraison` table without a default value. This is not possible if the table is not empty.
   - Added the required column `role` to the `Utilisateur` table without a default value. This is not possible if the table is not empty.
@@ -48,6 +49,10 @@ ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL;
 
 -- AlterTable
 ALTER TABLE "Livraison" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Produit" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL;
 
 -- AlterTable
