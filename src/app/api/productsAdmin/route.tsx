@@ -51,6 +51,15 @@ export async function POST(request: Request) {
       },
     })
 
+    // Créer une alerte pour le nouveau produit
+    await prisma.alertes.create({
+      data: {
+        produitId: produit.id,
+        message: `Le produit "${produit.nom}" a été ajouté avec un stock de ${produit.stock} unités.`,
+        dateAlerte: new Date(),
+      },
+    })
+
     return NextResponse.json(produit)
   } catch (error) {
     console.error("Erreur lors de la création du produit:", error)
@@ -159,6 +168,11 @@ export async function DELETE(request: Request) {
     if (!existingProduct) {
       return NextResponse.json({ error: "Produit non trouvé" }, { status: 404 })
     }
+
+    // Supprimer l'alerte associée au produit
+    await prisma.alertes.deleteMany({
+      where: { produitId: id },
+    })
 
     // Supprimer l'image si elle existe
     if (existingProduct.image) {

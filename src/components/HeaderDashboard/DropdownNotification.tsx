@@ -1,49 +1,101 @@
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import ClickOutside from "@/components/ClickOutside";
-import Image from "next/image";
+"use client"
 
-const notificationList = [
-  {
-    image: "/images/",
-    title: "Piter Joined the Team!",
-    subTitle: "Congratulate him",
-  },
-  {
-    image: "/images/",
-    title: "New message received",
-    subTitle: "Devid sent you new message",
-  },
-  {
-    image: "/images/",
-    title: "New Payment received",
-    subTitle: "Check your earnings",
-  },
-  {
-    image: "/images/",
-    title: "Jolly completed tasks",
-    subTitle: "Assign her newtasks",
-  },
-  {
-    image: "/images/",
-    title: "Roman Joined the Team!",
-    subTitle: "Congratulate him",
-  },
-];
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import ClickOutside from "@/components/ClickOutside"
+import Image from "next/image"
+
+interface Alert {
+  id: number
+  produitId: number
+  message: string
+  dateAlerte: string
+}
 
 const DropdownNotification = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notifying, setNotifying] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [newAlertsCount, setNewAlertsCount] = useState(0)
+  const [viewedAlerts, setViewedAlerts] = useState<Set<number>>(() => {
+    const saved = localStorage.getItem("viewedAlerts")
+    return new Set(saved ? JSON.parse(saved) : [])
+  })
+
+  useEffect(() => {
+    localStorage.setItem("viewedAlerts", JSON.stringify(Array.from(viewedAlerts)))
+  }, [viewedAlerts])
+
+  useEffect(() => {
+    // Fetch initial alerts
+    fetchAlerts()
+
+    // Set up real-time updates
+    const eventSource = new EventSource("/api/alerts")
+
+    eventSource.onmessage = (event) => {
+      const newAlerts: Alert[] = JSON.parse(event.data)
+      setAlerts((prevAlerts) => {
+        const updatedAlerts = [...newAlerts, ...prevAlerts]
+        const uniqueAlerts = updatedAlerts.filter(
+          (alert, index, self) => index === self.findIndex((t) => t.id === alert.id),
+        )
+        const sortedAlerts = uniqueAlerts.sort(
+          (a, b) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime(),
+        )
+
+        // Update new alerts count
+        const newCount = sortedAlerts.filter((alert) => !viewedAlerts.has(alert.id)).length
+        setNewAlertsCount(newCount)
+
+        return sortedAlerts
+      })
+    }
+
+    return () => {
+      eventSource.close()
+    }
+  }, [viewedAlerts])
+
+  const fetchAlerts = async () => {
+    try {
+      const response = await fetch("/api/alerts/getAll")
+      if (response.ok) {
+        const data = await response.json()
+        setAlerts(
+          data.sort((a: Alert, b: Alert) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime()),
+        )
+        setNewAlertsCount(data.filter((alert: Alert) => !viewedAlerts.has(alert.id)).length)
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error)
+    }
+  }
+
+  const getAlertIcon = (message: string): string => {
+    if (message.includes("bas") || message.includes("rupture")) {
+      return "/images/warning-icon.svg"
+    } else if (message.includes("ajouté avec succès") || message.includes("stock suffisant")) {
+      return "/images/success-icon.svg"
+    } else {
+      return "/images/default-icon.svg"
+    }
+  }
+
+  const handleDropdownToggle = () => {
+    if (!dropdownOpen) {
+      const newViewedAlerts = new Set(viewedAlerts)
+      alerts.forEach((alert) => newViewedAlerts.add(alert.id))
+      setViewedAlerts(newViewedAlerts)
+      setNewAlertsCount(0)
+    }
+    setDropdownOpen(!dropdownOpen)
+  }
 
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative hidden sm:block">
       <li>
-        <Link
-          onClick={() => {
-            setNotifying(false);
-            setDropdownOpen(!dropdownOpen);
-          }}
-          href="#"
+        <button
+          onClick={handleDropdownToggle}
           className="relative flex h-12 w-12 items-center justify-center rounded-full border border-stroke bg-gray-2 text-dark hover:text-primary dark:border-dark-4 dark:bg-dark-3 dark:text-white dark:hover:text-white"
         >
           <span className="relative">
@@ -63,73 +115,60 @@ const DropdownNotification = () => {
               />
             </svg>
 
-            <span
-              className={`absolute -top-0.5 right-0 z-1 h-2.5 w-2.5 rounded-full border-2 border-gray-2 bg-red-light dark:border-dark-3 ${
-                !notifying ? "hidden" : "inline"
-              }`}
-            >
-              <span className="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-red-light opacity-75"></span>
-            </span>
+            {newAlertsCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white">
+                {newAlertsCount}
+              </span>
+            )}
           </span>
-        </Link>
+        </button>
 
         {dropdownOpen && (
           <div
             className={`absolute -right-27 mt-7.5 flex h-[550px] w-75 flex-col rounded-xl border-[0.5px] border-stroke bg-white px-5.5 pb-5.5 pt-5 shadow-default dark:border-dark-3 dark:bg-gray-dark sm:right-0 sm:w-[364px]`}
           >
             <div className="mb-5 flex items-center justify-between">
-              <h5 className="text-lg font-medium text-dark dark:text-white">
-                Notifications
-              </h5>
-              <span className="rounded-md bg-primary px-2 py-0.5 text-body-xs font-medium text-white">
-                5.. new
-              </span>
+              <h5 className="text-lg font-medium text-dark dark:text-white">Notifications</h5>
             </div>
 
             <ul className="no-scrollbar mb-5 flex h-auto flex-col gap-1 overflow-y-auto">
-              {notificationList.map((item, index) => (
-                <li key={index}>
-                  <Link
-                    className="flex items-center gap-4 rounded-[10px] p-2.5 hover:bg-gray-2 dark:hover:bg-dark-3"
-                    href="#"
-                  >
-                    <span className="block h-14 w-14 rounded-full">
-                      <Image
-                        width={112}
-                        height={112}
-                        src={item.image}
-                        style={{
-                          width: "auto",
-                          height: "auto",
-                        }}
-                        alt="User"
-                      />
-                    </span>
+              {alerts
+                .filter((alert) => !viewedAlerts.has(alert.id))
+                .map((alert) => (
+                  <li key={alert.id}>
+                    <div className="flex items-center gap-4 rounded-[10px] p-2.5 hover:bg-gray-2 dark:hover:bg-dark-3">
+                      <span className="block h-14 w-14 rounded-full">
+                        <Image
+                          width={56}
+                          height={56}
+                          src={getAlertIcon(alert.message) || "/placeholder.svg"}
+                          alt="Alert Icon"
+                        />
+                      </span>
 
-                    <span className="block">
-                      <span className="block font-medium text-dark dark:text-white">
-                        {item.title}
+                      <span className="block">
+                        <span className="block font-medium text-dark dark:text-white">{alert.message}</span>
+                        <span className="block text-body-sm font-medium text-dark-5 dark:text-dark-6">
+                          {new Date(alert.dateAlerte).toLocaleString()}
+                        </span>
                       </span>
-                      <span className="block text-body-sm font-medium text-dark-5 dark:text-dark-6">
-                        {item.subTitle}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
+                    </div>
+                  </li>
+                ))}
             </ul>
 
             <Link
               className="flex items-center justify-center rounded-[7px] border border-primary p-2.5 font-medium text-primary hover:bg-blue-light-5 dark:border-dark-4 dark:text-dark-6 dark:hover:border-primary dark:hover:bg-blue-light-3 dark:hover:text-primary"
-              href="#"
+              href="/dashboard/alerts"
             >
-              See all notifications
+              Voir toutes les notifications
             </Link>
           </div>
         )}
       </li>
     </ClickOutside>
-  );
-};
+  )
+}
 
-export default DropdownNotification;
+export default DropdownNotification
+

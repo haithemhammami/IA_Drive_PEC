@@ -20,7 +20,7 @@ model Utilisateur {
   role          Role
   dateCreation  DateTime   @default(now())
   emailVerified Boolean    @default(false)
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime   @updatedAt
   adresses      Adresse[]
   avis          Avis[]
   Cart          Cart[]
@@ -81,7 +81,7 @@ model Promotion {
   dateDebut DateTime
   dateFin   DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime @updatedAt
   produit   Produit? @relation(fields: [produitId], references: [id])
 }
 
@@ -90,7 +90,6 @@ model Commande {
   clientId         Int
   statutId         Int
   total            Float
-  dateCommande     DateTime                   @default(now())
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
   client           Utilisateur                @relation("CommandeClient", fields: [clientId], references: [id])

@@ -2,9 +2,10 @@ import type React from "react"
 
 interface AlertSuccessProps {
   message: string
+  date: string
 }
 
-const AlertSuccess: React.FC<AlertSuccessProps> = ({ message }) => {
+const AlertSuccess: React.FC<AlertSuccessProps> = ({ message , date }) => {
   return (
     <div className="flex w-full rounded-[10px] border-l-6 border-green bg-green-light-7 px-7 py-8 dark:bg-[#1B1B24] dark:bg-opacity-30 md:p-9">
       <div className="mr-5.5 mt-[5px] flex h-8 w-full max-w-8 items-center justify-center rounded-md bg-green">
@@ -19,6 +20,7 @@ const AlertSuccess: React.FC<AlertSuccessProps> = ({ message }) => {
       <div className="w-full">
         <h5 className="mb-2 font-bold leading-[22px] text-[#004434] dark:text-[#34D399]">Succès</h5>
         <p className="text-[#637381]">{message}</p>
+        <p className="mt-2 text-sm text-[#D0915C]">{date}</p>
       </div>
     </div>
   )

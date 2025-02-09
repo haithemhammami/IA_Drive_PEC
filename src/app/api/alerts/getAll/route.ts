@@ -7,7 +7,6 @@ export async function GET() {
       orderBy: {
         dateAlerte: "desc",
       },
-      take: 10,
     })
 
     return NextResponse.json(alerts)

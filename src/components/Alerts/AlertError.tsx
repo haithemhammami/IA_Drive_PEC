@@ -2,9 +2,10 @@ import type React from "react"
 
 interface AlertErrorProps {
   message: string
+  date: string
 }
 
-const AlertError: React.FC<AlertErrorProps> = ({ message }) => {
+const AlertError: React.FC<AlertErrorProps> = ({ message, date }) => {
   return (
     <div className="flex w-full rounded-[10px] border-l-6 border-red-light bg-red-light-5 px-7 py-8 dark:bg-[#1B1B24] dark:bg-opacity-30 md:p-9">
       <div className="mr-5 mt-[5px] flex h-8 w-full max-w-8 items-center justify-center rounded-md bg-red-light">
@@ -20,6 +21,7 @@ const AlertError: React.FC<AlertErrorProps> = ({ message }) => {
         <h5 className="mb-4 font-bold leading-[22px] text-[#BC1C21]">Attention</h5>
         <ul>
           <li className="text-[#CD5D5D]">{message}</li>
+          <li className="mt-2 text-sm text-[#D0915C]">{date}</li>
         </ul>
       </div>
     </div>

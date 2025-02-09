@@ -16,12 +16,15 @@ interface Alert {
 
 const Alerts = () => {
   const [alerts, setAlerts] = useState<Alert[]>([])
+  const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>([])
+  const [filter, setFilter] = useState<"all" | "warning" | "success" | "error">("all")
 
   const fetchAlerts = useCallback(async () => {
     const response = await fetch("/api/alerts/getAll")
     if (response.ok) {
       const data = await response.json()
       setAlerts(data)
+      setFilteredAlerts(data)
     }
   }, [])
 
@@ -33,16 +36,11 @@ const Alerts = () => {
     eventSource.onmessage = (event) => {
       const newAlerts: Alert[] = JSON.parse(event.data)
       setAlerts((prevAlerts) => {
-        const updatedAlerts = [...prevAlerts]
-        newAlerts.forEach((newAlert) => {
-          const index = updatedAlerts.findIndex((a) => a.produitId === newAlert.produitId)
-          if (index !== -1) {
-            updatedAlerts[index] = newAlert
-          } else {
-            updatedAlerts.unshift(newAlert)
-          }
-        })
-        return updatedAlerts.slice(0, 10)
+        const updatedAlerts = [...newAlerts, ...prevAlerts]
+        const uniqueAlerts = updatedAlerts.filter(
+          (alert, index, self) => index === self.findIndex((t) => t.id === alert.id),
+        )
+        return uniqueAlerts.sort((a, b) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime())
       })
     }
 
@@ -51,9 +49,17 @@ const Alerts = () => {
     }
   }, [fetchAlerts])
 
+  useEffect(() => {
+    if (filter === "all") {
+      setFilteredAlerts(alerts)
+    } else {
+      setFilteredAlerts(alerts.filter((alert) => getAlertType(alert.message) === filter))
+    }
+  }, [filter, alerts])
+
   const getAlertType = (message: string): "warning" | "success" | "error" => {
-    if (message.includes("bas")) return "warning"
-    if (message.includes("Nouveau produit")) return "success"
+    if (message.includes("bas") || message.includes("Pensez à réapprovisionner")) return "warning"
+    if (message.includes("quantité suffisante") || message.includes("a été ajouté")) return "success"
     if (message.includes("rupture")) return "error"
     return "warning"
   }
@@ -63,9 +69,22 @@ const Alerts = () => {
       <Breadcrumb pageName="Alertes Produits" />
 
       <div className="rounded-[10px] bg-white p-4 shadow-1 dark:bg-gray-dark dark:shadow-card md:p-6 xl:p-9">
-        <div className="flex flex-col gap-7.5">
-          {alerts.length > 0 ? (
-            alerts.map((alert) => {
+        <div className="mb-4 flex justify-end">
+          <select
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as "all" | "warning" | "success" | "error")}
+          >
+            <option value="all">Toutes les alertes</option>
+            <option value="warning">Avertissements</option>
+            <option value="success">Succès</option>
+            <option value="error">Attention</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-7.5 max-h-[70vh] overflow-y-auto">
+          {filteredAlerts.length > 0 ? (
+            filteredAlerts.map((alert) => {
               const AlertComponent =
                 getAlertType(alert.message) === "warning"
                   ? AlertWarning
