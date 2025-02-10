@@ -2,11 +2,28 @@ import { NextResponse } from "next/server"
 import prisma from "lib/prisma"
 
 const lowStockThreshold = 10
+const RETRY_INTERVAL = 5000 // 5 seconds
+const CHECK_INTERVAL = 30000 // 30 seconds
 
 enum AlertType {
   LOW_STOCK = "LOW_STOCK",
   OUT_OF_STOCK = "OUT_OF_STOCK",
   STOCK_RECOVERED = "STOCK_RECOVERED",
+}
+
+async function fetchAlerts(retries = 3): Promise<any[]> {
+  try {
+    return await prisma.alertes.findMany({
+      orderBy: { dateAlerte: "desc" },
+    })
+  } catch (error) {
+    if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL))
+      return fetchAlerts(retries - 1)
+    }
+    console.error("Failed to fetch alerts after retries:", error)
+    return []
+  }
 }
 
 async function checkStockLevels() {
@@ -114,28 +131,37 @@ export async function GET() {
         controller.enqueue(encoder.encode(`data: ${data}\n\n`))
       }
 
-      // Send initial alerts
-      const initialAlerts = await prisma.alertes.findMany({
-        orderBy: { dateAlerte: "desc" },
-      })
+      // Send initial alerts with retry mechanism
+      const initialAlerts = await fetchAlerts()
       sendEvent(JSON.stringify(initialAlerts))
 
-      // Check stock levels every 10 seconds
-      const interval = setInterval(async () => {
+      let isActive = true
+      const checkStock = async () => {
+        if (!isActive) return
+
         try {
           const updatedAlerts = await checkStockLevels()
           if (updatedAlerts.length > 0) {
-            const allAlerts = await prisma.alertes.findMany({
-              orderBy: { dateAlerte: "desc" },
-            })
+            const allAlerts = await fetchAlerts()
             sendEvent(JSON.stringify(allAlerts))
           }
         } catch (error) {
           console.error("Error checking stock levels:", error)
+          // Don't terminate the stream on error
         }
-      }, 10000)
 
-      return () => clearInterval(interval)
+        // Schedule next check if stream is still active
+        if (isActive) {
+          setTimeout(checkStock, CHECK_INTERVAL)
+        }
+      }
+
+      // Start the stock checking loop
+      checkStock()
+
+      return () => {
+        isActive = false
+      }
     },
   })
 
@@ -147,4 +173,3 @@ export async function GET() {
     },
   })
 }
-

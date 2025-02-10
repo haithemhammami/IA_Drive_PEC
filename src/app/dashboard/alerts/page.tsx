@@ -19,55 +19,77 @@ const Alerts = () => {
   const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>([])
   const [filter, setFilter] = useState<"all" | "warning" | "success" | "error">("all")
   const eventSourceRef = useRef<EventSource | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
 
   const fetchAlerts = useCallback(async () => {
     try {
       const response = await fetch("/api/alerts/getAll")
       if (response.ok) {
         const data = await response.json()
-        setAlerts(data)
-        setFilteredAlerts(data)
+        const sortedData = data.sort((a: Alert, b: Alert) => 
+          new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime()
+        )
+        setAlerts(sortedData)
+        setFilteredAlerts(sortedData)
       }
     } catch (error) {
       console.error("Error fetching alerts:", error)
     }
   }, [])
 
-  useEffect(() => {
-    fetchAlerts()
+  const setupEventSource = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+    }
 
-    eventSourceRef.current = new EventSource("/api/alerts")
+    const eventSource = new EventSource("/api/alerts")
+    eventSourceRef.current = eventSource
 
-    eventSourceRef.current.onmessage = (event) => {
+    eventSource.onmessage = (event) => {
       const newAlerts: Alert[] = JSON.parse(event.data)
-      setAlerts((prevAlerts) => {
-        const updatedAlerts = [...newAlerts, ...prevAlerts]
-        const uniqueAlerts = updatedAlerts.filter(
-          (alert, index, self) => index === self.findIndex((t) => t.id === alert.id),
+      setAlerts(prevAlerts => {
+        const merged = [...newAlerts, ...prevAlerts]
+        const unique = merged.filter((alert, index, self) => 
+          index === self.findIndex((t) => t.id === alert.id)
         )
-        return uniqueAlerts.sort((a, b) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime())
+        return unique.sort((a, b) => 
+          new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime()
+        )
       })
     }
+
+    eventSource.onerror = () => {
+      eventSource.close()
+      reconnectTimeoutRef.current = setTimeout(setupEventSource, 5000)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchAlerts()
+    setupEventSource()
 
     return () => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close()
       }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
     }
-  }, [fetchAlerts])
+  }, [fetchAlerts, setupEventSource])
 
   useEffect(() => {
-    if (filter === "all") {
-      setFilteredAlerts(alerts)
-    } else {
-      setFilteredAlerts(alerts.filter((alert) => getAlertType(alert.message) === filter))
-    }
+    setFilteredAlerts(
+      filter === "all" 
+        ? alerts 
+        : alerts.filter(alert => getAlertType(alert.message) === filter)
+    )
   }, [filter, alerts])
 
   const getAlertType = (message: string): "warning" | "success" | "error" => {
+    if (message.includes("rupture")) return "error"
     if (message.includes("bas") || message.includes("Pensez à réapprovisionner")) return "warning"
     if (message.includes("quantité suffisante") || message.includes("a été ajouté")) return "success"
-    if (message.includes("rupture")) return "error"
     return "warning"
   }
 
@@ -85,7 +107,7 @@ const Alerts = () => {
             <option value="all">Toutes les alertes</option>
             <option value="warning">Avertissements</option>
             <option value="success">Succès</option>
-            <option value="error">Erreurs</option>
+            <option value="error">Attention</option>
           </select>
         </div>
 

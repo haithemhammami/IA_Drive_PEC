@@ -22,6 +22,7 @@ const DropdownNotification: React.FC = () => {
     return new Set(saved ? JSON.parse(saved) : [])
   })
   const eventSourceRef = useRef<EventSource | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     localStorage.setItem("viewedAlerts", JSON.stringify(Array.from(viewedAlerts)))
@@ -30,37 +31,44 @@ const DropdownNotification: React.FC = () => {
   const mergeAlerts = useCallback((oldAlerts: Alert[], newAlerts: Alert[]): Alert[] => {
     const alertMap = new Map(oldAlerts.map((alert) => [alert.id, alert]))
     newAlerts.forEach((alert) => {
-      if (alertMap.has(alert.id)) {
-        const existingAlert = alertMap.get(alert.id)!
-        if (existingAlert.message !== alert.message || existingAlert.dateAlerte !== alert.dateAlerte) {
-          alertMap.set(alert.id, alert)
-        }
-      } else {
+      if (!alertMap.has(alert.id) || 
+          alertMap.get(alert.id)!.message !== alert.message || 
+          alertMap.get(alert.id)!.dateAlerte !== alert.dateAlerte) {
         alertMap.set(alert.id, alert)
       }
     })
-    return Array.from(alertMap.values()).sort(
-      (a, b) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime(),
-    )
+    return Array.from(alertMap.values())
+      .sort((a, b) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime())
   }, [])
 
-  const countNewAlerts = useCallback(
-    (alertsToCount: Alert[]): number => {
-      return alertsToCount.filter((alert) => !viewedAlerts.has(`${alert.id}-${alert.dateAlerte}`)).length
-    },
-    [viewedAlerts],
-  )
+  const countNewAlerts = useCallback((alertsToCount: Alert[]): number => {
+    return alertsToCount.filter((alert) => 
+      !viewedAlerts.has(`${alert.id}-${alert.dateAlerte}`)
+    ).length
+  }, [viewedAlerts])
 
-  const handleNewAlerts = useCallback(
-    (newAlerts: Alert[]) => {
-      setAlerts((prevAlerts) => {
+  const setupEventSource = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+    }
+
+    const eventSource = new EventSource("/api/alerts")
+    eventSourceRef.current = eventSource
+
+    eventSource.onmessage = (event) => {
+      const newAlerts: Alert[] = JSON.parse(event.data)
+      setAlerts(prevAlerts => {
         const updatedAlerts = mergeAlerts(prevAlerts, newAlerts)
-        setNewAlertsCount((prevCount) => prevCount + countNewAlerts(newAlerts))
+        setNewAlertsCount(prevCount => prevCount + countNewAlerts(newAlerts))
         return updatedAlerts
       })
-    },
-    [mergeAlerts, countNewAlerts],
-  )
+    }
+
+    eventSource.onerror = () => {
+      eventSource.close()
+      reconnectTimeoutRef.current = setTimeout(setupEventSource, 5000)
+    }
+  }, [mergeAlerts, countNewAlerts])
 
   useEffect(() => {
     const fetchInitialAlerts = async () => {
@@ -68,10 +76,11 @@ const DropdownNotification: React.FC = () => {
         const response = await fetch("/api/alerts/getAll")
         if (response.ok) {
           const data = await response.json()
-          setAlerts(
-            data.sort((a: Alert, b: Alert) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime()),
+          const sortedData = data.sort((a: Alert, b: Alert) => 
+            new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime()
           )
-          setNewAlertsCount(countNewAlerts(data))
+          setAlerts(sortedData)
+          setNewAlertsCount(countNewAlerts(sortedData))
         }
       } catch (error) {
         console.error("Error fetching initial alerts:", error)
@@ -79,29 +88,25 @@ const DropdownNotification: React.FC = () => {
     }
 
     fetchInitialAlerts()
-
-    eventSourceRef.current = new EventSource("/api/alerts")
-
-    eventSourceRef.current.onmessage = (event) => {
-      const newAlerts: Alert[] = JSON.parse(event.data)
-      handleNewAlerts(newAlerts)
-    }
+    setupEventSource()
 
     return () => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close()
       }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
     }
-  }, [countNewAlerts, handleNewAlerts])
+  }, [setupEventSource, countNewAlerts])
 
   const getAlertIcon = (message: string): string => {
     if (message.includes("bas") || message.includes("rupture")) {
       return "/images/warning-icon.svg"
     } else if (message.includes("ajouté avec succès") || message.includes("quantité suffisante")) {
       return "/images/success-icon.svg"
-    } else {
-      return "/images/default-icon.svg"
     }
+    return "/images/default-icon.svg"
   }
 
   const handleDropdownToggle = () => {

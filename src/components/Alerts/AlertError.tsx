@@ -20,8 +20,8 @@ const AlertError: React.FC<AlertErrorProps> = ({ message, date }) => {
       <div className="w-full">
         <h5 className="mb-4 font-bold leading-[22px] text-[#BC1C21]">Attention</h5>
         <ul>
-          <li className="text-[#CD5D5D]">{message}</li>
-          <li className="mt-2 text-sm text-[#D0915C]">{date}</li>
+          <li className="w-full max-w-[740px] text-[#637381]">{message}</li>
+          <li className="mt-2 text-sm text-[#BC1C21]">{date}</li>
         </ul>
       </div>
     </div>

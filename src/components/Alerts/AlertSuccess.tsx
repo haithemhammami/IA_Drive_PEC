@@ -19,8 +19,8 @@ const AlertSuccess: React.FC<AlertSuccessProps> = ({ message , date }) => {
       </div>
       <div className="w-full">
         <h5 className="mb-2 font-bold leading-[22px] text-[#004434] dark:text-[#34D399]">Succès</h5>
-        <p className="text-[#637381]">{message}</p>
-        <p className="mt-2 text-sm text-[#D0915C]">{date}</p>
+        <p className="w-full max-w-[740px] text-[#637381]">{message}</p>
+        <p className="mt-2 text-sm text-[#004434] dark:text-[#34D399]">{date}</p>
       </div>
     </div>
   )

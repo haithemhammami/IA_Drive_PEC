@@ -1,26 +1,25 @@
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import Orders from "@/components/lists/orders";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
+import OrderTable from "@/components/lists/OrderTable"
 
-
-import { Metadata } from "next";
-import DefaultLayout from "@/components/Layouts/DefaultLaout";
+import type { Metadata } from "next"
+import DefaultLayout from "@/components/Layouts/DefaultLaout"
 
 export const metadata: Metadata = {
-  title: "IA Drive PEC",
-  description: " Application Drive alimentaire enrichie par IA pour Admin ",
-};
+  title: "IA Drive PEC - Commandes",
+  description: "Application de drive alimentaire enrichie par IA pour Admin - Gestion des commandes",
+}
 
-const TablesPage = () => {
+const OrdersPage = () => {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Liste des Commandes" />
 
       <div className="flex flex-col gap-10">
-        <Orders />
-
+        <OrderTable />
       </div>
     </DefaultLayout>
-  );
-};
+  )
+}
 
-export default TablesPage;
+export default OrdersPage
+

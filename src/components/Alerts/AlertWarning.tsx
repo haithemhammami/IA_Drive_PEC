@@ -20,7 +20,7 @@ const AlertWarning: React.FC<AlertWarningProps> = ({ message, date }) => {
       </div>
       <div className="w-full">
         <h5 className="mb-3.5 text-lg font-bold leading-[22px] text-[#9D5425]">Avertissement</h5>
-        <p className="w-full max-w-[740px] text-[#D0915C]">{message}</p>
+        <p className="w-full max-w-[740px] text-[#637381]">{message}</p>
         <p className="mt-2 text-sm text-[#D0915C]">{date}</p>
       </div>
     </div>
