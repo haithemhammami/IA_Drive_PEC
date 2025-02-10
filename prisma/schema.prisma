@@ -1,12 +1,10 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Utilisateur {
@@ -39,23 +37,24 @@ model Session {
 }
 
 model Produit {
-  id              Int              @id @default(autoincrement())
-  nom             String
-  description     String?
-  prix            Float
-  stock           Int
-  categorieId     Int
-  image           String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  alertes         Alertes[]
-  avis            Avis[]
-  cartItems       Cart[]
-  commandeDetails DetailCommande[]
-  categorie       Categorie        @relation(fields: [categorieId], references: [id])
-  promotions      Promotion[]
-  variantes       Variante[]
-  utilisateurs    Utilisateur[]    @relation("Ajoute")
+  id                Int                @id @default(autoincrement())
+  nom               String
+  description       String?
+  prix              Float
+  stock             Int
+  categorieId       Int
+  image             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  alertes           Alertes[]
+  avis              Avis[]
+  cartItems         Cart[]
+  commandeDetails   DetailCommande[]
+  ProductAlertState ProductAlertState?
+  categorie         Categorie          @relation(fields: [categorieId], references: [id])
+  promotions        Promotion[]
+  variantes         Variante[]
+  utilisateurs      Utilisateur[]      @relation("Ajoute")
 }
 
 model Categorie {
@@ -91,7 +90,6 @@ model Commande {
   clientId         Int
   statutId         Int
   total            Float
-  dateCommande     DateTime                   @default(now())
   createdAt        DateTime                   @default(now())
   updatedAt        DateTime                   @updatedAt
   client           Utilisateur                @relation("CommandeClient", fields: [clientId], references: [id])
@@ -238,6 +236,14 @@ model AvisGlobale {
   createdAt   DateTime @default(now())
 
   @@map("AvisGlobale")
+}
+
+model ProductAlertState {
+  id            Int      @id @default(autoincrement())
+  produitId     Int      @unique
+  lastAlertType String
+  lastAlertDate DateTime
+  Produit       Produit  @relation(fields: [produitId], references: [id], onDelete: Cascade)
 }
 
 enum Role {

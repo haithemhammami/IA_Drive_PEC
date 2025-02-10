@@ -31,8 +31,13 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('token', token);
-      router.push('/products');
-    } else {
+      // if (user.role === 'ADMIN') {
+      //   router.push('/admin');
+      //   return;
+      // }else if (user.role === 'CLIENT') {
+        router.push('/products');
+        // return;
+      } else {
       const errorData = await res.json();
       alert(errorData.error);
     }
