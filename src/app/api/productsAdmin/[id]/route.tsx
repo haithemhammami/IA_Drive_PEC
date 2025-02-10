@@ -110,6 +110,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       data: updateData,
     })
 
+    // Check if stock has changed and trigger alert check if necessary
+    if (updateData.stock !== undefined && updateData.stock !== existingProduit.stock) {
+      await checkStockLevels(updatedProduit.id, updatedProduit.stock)
+    }
+
     return NextResponse.json({
       message: "Produit mis à jour avec succès",
       produit: updatedProduit,
@@ -117,6 +122,78 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   } catch (error) {
     console.error("Erreur PUT:", error)
     return NextResponse.json({ error: "Erreur lors de la mise à jour" }, { status: 500 })
+  }
+}
+
+async function checkStockLevels(productId: number, newStock: number) {
+  const lowStockThreshold = 10
+
+  try {
+    // Fetch the product to get its name
+    const product = await prisma.produit.findUnique({
+      where: { id: productId },
+    })
+
+    if (!product) {
+      console.error(`Product with id ${productId} not found`)
+      return
+    }
+
+    const alertType = newStock === 0 ? "OUT_OF_STOCK" : newStock <= lowStockThreshold ? "LOW_STOCK" : "STOCK_RECOVERED"
+
+    const message =
+      newStock === 0
+        ? `Le produit "${product.nom}" est en rupture de stock. Veuillez réapprovisionner rapidement.`
+        : newStock <= lowStockThreshold
+          ? `Le stock du produit "${product.nom}" est bas (${newStock} unités restantes). Pensez à réapprovisionner.`
+          : `Le produit "${product.nom}" est à nouveau disponible en quantité suffisante (${newStock} unités).`
+
+    const alertState = await prisma.productAlertState.findUnique({
+      where: { produitId: productId },
+    })
+
+    if (!alertState || alertState.lastAlertType !== alertType) {
+      // Find existing alert for this product
+      const existingAlert = await prisma.alertes.findFirst({
+        where: { produitId: productId },
+      })
+
+      if (existingAlert) {
+        // Update existing alert
+        await prisma.alertes.update({
+          where: { id: existingAlert.id },
+          data: {
+            message,
+            dateAlerte: new Date(),
+          },
+        })
+      } else {
+        // Create new alert
+        await prisma.alertes.create({
+          data: {
+            produitId: productId,
+            message,
+            dateAlerte: new Date(),
+          },
+        })
+      }
+
+      // Update the alert state
+      await prisma.productAlertState.upsert({
+        where: { produitId: productId },
+        update: {
+          lastAlertType: alertType,
+          lastAlertDate: new Date(),
+        },
+        create: {
+          produitId: productId,
+          lastAlertType: alertType,
+          lastAlertDate: new Date(),
+        },
+      })
+    }
+  } catch (error) {
+    console.error("Error checking stock levels:", error)
   }
 }
 

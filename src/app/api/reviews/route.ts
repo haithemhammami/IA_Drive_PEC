@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import prisma from "lib/prisma"
 
 export async function POST(request: Request) {
   try {
@@ -29,6 +27,27 @@ export async function GET() {
     return NextResponse.json(reviews)
   } catch (error) {
     return NextResponse.json({ error: "Error fetching reviews" }, { status: 400 })
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get("id")
+
+    if (!id) {
+      return NextResponse.json({ error: "Review ID is required" }, { status: 400 })
+    }
+
+    await prisma.avisGlobale.delete({
+      where: {
+        id: Number.parseInt(id),
+      },
+    })
+
+    return NextResponse.json({ message: "Review deleted successfully" }, { status: 200 })
+  } catch (error) {
+    return NextResponse.json({ error: "Error deleting review" }, { status: 400 })
   }
 }
 

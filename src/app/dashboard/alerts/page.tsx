@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
 import DefaultLayout from "@/components/Layouts/DefaultLaout"
 import AlertError from "@/components/Alerts/AlertError"
@@ -18,22 +18,27 @@ const Alerts = () => {
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>([])
   const [filter, setFilter] = useState<"all" | "warning" | "success" | "error">("all")
+  const eventSourceRef = useRef<EventSource | null>(null)
 
   const fetchAlerts = useCallback(async () => {
-    const response = await fetch("/api/alerts/getAll")
-    if (response.ok) {
-      const data = await response.json()
-      setAlerts(data)
-      setFilteredAlerts(data)
+    try {
+      const response = await fetch("/api/alerts/getAll")
+      if (response.ok) {
+        const data = await response.json()
+        setAlerts(data)
+        setFilteredAlerts(data)
+      }
+    } catch (error) {
+      console.error("Error fetching alerts:", error)
     }
   }, [])
 
   useEffect(() => {
     fetchAlerts()
 
-    const eventSource = new EventSource("/api/alerts")
+    eventSourceRef.current = new EventSource("/api/alerts")
 
-    eventSource.onmessage = (event) => {
+    eventSourceRef.current.onmessage = (event) => {
       const newAlerts: Alert[] = JSON.parse(event.data)
       setAlerts((prevAlerts) => {
         const updatedAlerts = [...newAlerts, ...prevAlerts]
@@ -45,7 +50,9 @@ const Alerts = () => {
     }
 
     return () => {
-      eventSource.close()
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+      }
     }
   }, [fetchAlerts])
 
@@ -78,7 +85,7 @@ const Alerts = () => {
             <option value="all">Toutes les alertes</option>
             <option value="warning">Avertissements</option>
             <option value="success">Succès</option>
-            <option value="error">Attention</option>
+            <option value="error">Erreurs</option>
           </select>
         </div>
 

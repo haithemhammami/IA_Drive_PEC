@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import type React from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import Link from "next/link"
 import ClickOutside from "@/components/ClickOutside"
 import Image from "next/image"
@@ -12,69 +13,91 @@ interface Alert {
   dateAlerte: string
 }
 
-const DropdownNotification = () => {
+const DropdownNotification: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [newAlertsCount, setNewAlertsCount] = useState(0)
-  const [viewedAlerts, setViewedAlerts] = useState<Set<number>>(() => {
+  const [viewedAlerts, setViewedAlerts] = useState<Set<string>>(() => {
     const saved = localStorage.getItem("viewedAlerts")
     return new Set(saved ? JSON.parse(saved) : [])
   })
+  const eventSourceRef = useRef<EventSource | null>(null)
 
   useEffect(() => {
     localStorage.setItem("viewedAlerts", JSON.stringify(Array.from(viewedAlerts)))
   }, [viewedAlerts])
 
-  useEffect(() => {
-    // Fetch initial alerts
-    fetchAlerts()
+  const mergeAlerts = useCallback((oldAlerts: Alert[], newAlerts: Alert[]): Alert[] => {
+    const alertMap = new Map(oldAlerts.map((alert) => [alert.id, alert]))
+    newAlerts.forEach((alert) => {
+      if (alertMap.has(alert.id)) {
+        const existingAlert = alertMap.get(alert.id)!
+        if (existingAlert.message !== alert.message || existingAlert.dateAlerte !== alert.dateAlerte) {
+          alertMap.set(alert.id, alert)
+        }
+      } else {
+        alertMap.set(alert.id, alert)
+      }
+    })
+    return Array.from(alertMap.values()).sort(
+      (a, b) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime(),
+    )
+  }, [])
 
-    // Set up real-time updates
-    const eventSource = new EventSource("/api/alerts")
+  const countNewAlerts = useCallback(
+    (alertsToCount: Alert[]): number => {
+      return alertsToCount.filter((alert) => !viewedAlerts.has(`${alert.id}-${alert.dateAlerte}`)).length
+    },
+    [viewedAlerts],
+  )
 
-    eventSource.onmessage = (event) => {
-      const newAlerts: Alert[] = JSON.parse(event.data)
+  const handleNewAlerts = useCallback(
+    (newAlerts: Alert[]) => {
       setAlerts((prevAlerts) => {
-        const updatedAlerts = [...newAlerts, ...prevAlerts]
-        const uniqueAlerts = updatedAlerts.filter(
-          (alert, index, self) => index === self.findIndex((t) => t.id === alert.id),
-        )
-        const sortedAlerts = uniqueAlerts.sort(
-          (a, b) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime(),
-        )
-
-        // Update new alerts count
-        const newCount = sortedAlerts.filter((alert) => !viewedAlerts.has(alert.id)).length
-        setNewAlertsCount(newCount)
-
-        return sortedAlerts
+        const updatedAlerts = mergeAlerts(prevAlerts, newAlerts)
+        setNewAlertsCount((prevCount) => prevCount + countNewAlerts(newAlerts))
+        return updatedAlerts
       })
+    },
+    [mergeAlerts, countNewAlerts],
+  )
+
+  useEffect(() => {
+    const fetchInitialAlerts = async () => {
+      try {
+        const response = await fetch("/api/alerts/getAll")
+        if (response.ok) {
+          const data = await response.json()
+          setAlerts(
+            data.sort((a: Alert, b: Alert) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime()),
+          )
+          setNewAlertsCount(countNewAlerts(data))
+        }
+      } catch (error) {
+        console.error("Error fetching initial alerts:", error)
+      }
+    }
+
+    fetchInitialAlerts()
+
+    eventSourceRef.current = new EventSource("/api/alerts")
+
+    eventSourceRef.current.onmessage = (event) => {
+      const newAlerts: Alert[] = JSON.parse(event.data)
+      handleNewAlerts(newAlerts)
     }
 
     return () => {
-      eventSource.close()
-    }
-  }, [viewedAlerts])
-
-  const fetchAlerts = async () => {
-    try {
-      const response = await fetch("/api/alerts/getAll")
-      if (response.ok) {
-        const data = await response.json()
-        setAlerts(
-          data.sort((a: Alert, b: Alert) => new Date(b.dateAlerte).getTime() - new Date(a.dateAlerte).getTime()),
-        )
-        setNewAlertsCount(data.filter((alert: Alert) => !viewedAlerts.has(alert.id)).length)
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
       }
-    } catch (error) {
-      console.error("Error fetching alerts:", error)
     }
-  }
+  }, [countNewAlerts, handleNewAlerts])
 
   const getAlertIcon = (message: string): string => {
     if (message.includes("bas") || message.includes("rupture")) {
       return "/images/warning-icon.svg"
-    } else if (message.includes("ajouté avec succès") || message.includes("stock suffisant")) {
+    } else if (message.includes("ajouté avec succès") || message.includes("quantité suffisante")) {
       return "/images/success-icon.svg"
     } else {
       return "/images/default-icon.svg"
@@ -84,7 +107,7 @@ const DropdownNotification = () => {
   const handleDropdownToggle = () => {
     if (!dropdownOpen) {
       const newViewedAlerts = new Set(viewedAlerts)
-      alerts.forEach((alert) => newViewedAlerts.add(alert.id))
+      alerts.forEach((alert) => newViewedAlerts.add(`${alert.id}-${alert.dateAlerte}`))
       setViewedAlerts(newViewedAlerts)
       setNewAlertsCount(0)
     }
@@ -132,29 +155,27 @@ const DropdownNotification = () => {
             </div>
 
             <ul className="no-scrollbar mb-5 flex h-auto flex-col gap-1 overflow-y-auto">
-              {alerts
-                .filter((alert) => !viewedAlerts.has(alert.id))
-                .map((alert) => (
-                  <li key={alert.id}>
-                    <div className="flex items-center gap-4 rounded-[10px] p-2.5 hover:bg-gray-2 dark:hover:bg-dark-3">
-                      <span className="block h-14 w-14 rounded-full">
-                        <Image
-                          width={56}
-                          height={56}
-                          src={getAlertIcon(alert.message) || "/placeholder.svg"}
-                          alt="Alert Icon"
-                        />
-                      </span>
+              {alerts.map((alert) => (
+                <li key={`${alert.id}-${alert.dateAlerte}`}>
+                  <div className="flex items-center gap-4 rounded-[10px] p-2.5 hover:bg-gray-2 dark:hover:bg-dark-3">
+                    <span className="block h-14 w-14 rounded-full">
+                      <Image
+                        width={56}
+                        height={56}
+                        src={getAlertIcon(alert.message) || "/placeholder.svg"}
+                        alt="Alert Icon"
+                      />
+                    </span>
 
-                      <span className="block">
-                        <span className="block font-medium text-dark dark:text-white">{alert.message}</span>
-                        <span className="block text-body-sm font-medium text-dark-5 dark:text-dark-6">
-                          {new Date(alert.dateAlerte).toLocaleString()}
-                        </span>
+                    <span className="block">
+                      <span className="block font-medium text-dark dark:text-white">{alert.message}</span>
+                      <span className="block text-body-sm font-medium text-dark-5 dark:text-dark-6">
+                        {new Date(alert.dateAlerte).toLocaleString()}
                       </span>
-                    </div>
-                  </li>
-                ))}
+                    </span>
+                  </div>
+                </li>
+              ))}
             </ul>
 
             <Link

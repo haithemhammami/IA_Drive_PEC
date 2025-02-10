@@ -193,7 +193,7 @@ const menuGroups = [
         route: "#",
         children: [
           { label: "Alerts Produits", route: "/dashboard/alerts" },
-          { label: "Alerts Utilisateurs", route: "/dashboard/alertsUsers" },
+          { label: "Avis Utilisateurs", route: "/dashboard/alertsUsers" },
         ],
       },
       {

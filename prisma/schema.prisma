@@ -55,6 +55,7 @@ model Produit {
   promotions      Promotion[]
   variantes       Variante[]
   utilisateurs    Utilisateur[]    @relation("Ajoute")
+  alertState    ProductAlertState?
 }
 
 model Categorie {
@@ -241,4 +242,12 @@ model AvisGlobale {
 enum Role {
   CLIENT
   ADMIN
+}
+
+model ProductAlertState {
+  id            Int      @id @default(autoincrement())
+  produit       Produit  @relation(fields: [produitId], references: [id])
+  produitId     Int      @unique
+  lastAlertType String
+  lastAlertDate DateTime
 }
