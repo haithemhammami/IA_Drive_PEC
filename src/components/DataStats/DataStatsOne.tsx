@@ -23,44 +23,86 @@ interface Product {
   updatedAt: string
 }
 
+interface User {
+  id: number
+  nom: string
+  email: string
+  dateCreation: string
+}
+
+interface Order {
+  id: number
+  total: number
+  createdAt: string
+}
+
 const DataStatsOne: React.FC = () => {
   const [totalCategories, setTotalCategories] = useState(0)
   const [categoryGrowthRate, setCategoryGrowthRate] = useState(0)
   const [totalProducts, setTotalProducts] = useState(0)
   const [productGrowthRate, setProductGrowthRate] = useState(0)
+  const [totalUsers, setTotalUsers] = useState(0)
+  const [userGrowthRate, setUserGrowthRate] = useState(0)
+  const [totalProfit, setTotalProfit] = useState(0)
+  const [profitGrowthRate, setProfitGrowthRate] = useState(0)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [categoriesResponse, productsResponse] = await Promise.all([
+        const [categoriesResponse, productsResponse, usersResponse, ordersResponse] = await Promise.all([
           fetch("/api/categoriesAdmin"),
           fetch("/api/productsAdmin"),
+          fetch("/api/usersAdmin"),
+          fetch("/api/ordersAdmin"),
         ])
 
-        if (!categoriesResponse.ok || !productsResponse.ok) {
+        if (!categoriesResponse.ok || !productsResponse.ok || !usersResponse.ok || !ordersResponse.ok) {
           throw new Error("Failed to fetch stats")
         }
 
         const categoriesData = await categoriesResponse.json()
         const productsData: Product[] = await productsResponse.json()
+        const { users: usersData } = await usersResponse.json()
+        const ordersData: Order[] = await ordersResponse.json()
+
+        const now = new Date()
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
 
         // Catégories
         setTotalCategories(categoriesData.length)
         const newCategoriesThisMonth = categoriesData.filter((cat: any) => {
           const createdDate = new Date(cat.createdAt)
-          const now = new Date()
-          return createdDate.getMonth() === now.getMonth() && createdDate.getFullYear() === now.getFullYear()
+          return createdDate >= firstDayOfMonth && createdDate <= now
         }).length
         setCategoryGrowthRate(newCategoriesThisMonth)
 
         // Produits
         setTotalProducts(productsData.length)
-        const now = new Date()
-        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
         const newProductsThisMonth = productsData.filter(
           (product) => new Date(product.createdAt) >= firstDayOfMonth,
         ).length
         setProductGrowthRate(newProductsThisMonth)
+
+        // Utilisateurs
+        setTotalUsers(usersData.length)
+        const newUsersThisMonth = usersData.filter((user: User) => new Date(user.dateCreation) >= firstDayOfMonth).length
+        setUserGrowthRate(newUsersThisMonth)
+
+        // Profit
+        const totalProfit = ordersData.reduce((sum, order) => sum + order.total, 0)
+        setTotalProfit(totalProfit)
+
+        const profitThisMonth = ordersData
+          .filter((order) => new Date(order.createdAt) >= firstDayOfMonth)
+          .reduce((sum, order) => sum + order.total, 0)
+
+        // Calculate the growth rate as the percentage of this month's profit compared to the total
+        //const profitGrowthRate = totalProfit !== 0 ? (profitThisMonth / totalProfit) * 100 : 0
+        //profitThisMonth
+        const profitGrowthRate = profitThisMonth
+        setProfitGrowthRate(Number(profitGrowthRate.toFixed(2)))
       } catch (error) {
         console.error("Error fetching stats:", error)
       }
@@ -126,8 +168,8 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#18BFFF",
       title: "Total des Utilisateurs",
-      value: "1",
-      growthRate: -0.95,
+      value: totalUsers.toString(),
+      growthRate: userGrowthRate,
     },
     {
       icon: (
@@ -142,8 +184,8 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#3FD97F",
       title: "Total de Profit",
-      value: "€0",
-      growthRate: 4.35,
+      value: `€${totalProfit.toFixed(2)}`,
+      growthRate: profitGrowthRate,
     },
   ]
 
