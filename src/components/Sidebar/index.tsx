@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
-import ClickOutside from "@/components/LandingPage/ClickOutside";
+import ClickOutside from "@/components/ClickOutside";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 interface SidebarProps {
@@ -248,8 +248,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             <Image
               width={176}
               height={32}
-              src={"/favicon.ico"}
-              alt="Logo Drive"
+              src={"/images/logo.svg"}
+              alt="IA_Drive"
               priority
               className="dark:hidden"
               style={{ width: "auto", height: "auto" }}
@@ -257,8 +257,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             <Image
               width={176}
               height={32}
-              src={"/favicon.ico"}
-              alt="Logo Drive"
+              src={"/images/logo.svg"}
+              alt="IA_Drive"
               priority
               className="hidden dark:block"
               style={{ width: "auto", height: "auto" }}
