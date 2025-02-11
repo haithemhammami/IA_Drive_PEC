@@ -34,7 +34,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 // PUT - Mettre à jour un produit
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
-    const id = Number.parseInt(params.id, 10)
+    const id = Number.parseInt(await params.id, 10)
 
     if (isNaN(id)) {
       return NextResponse.json({ error: "ID invalide" }, { status: 400 })

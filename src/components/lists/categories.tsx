@@ -97,7 +97,7 @@ const TableCategories: React.FC = () => {
                     {categorie.logo ? (
                       <Image
                         className="h-10 w-10 rounded-full object-cover"
-                        src={categorie.logo || "/placeholder.svg"}
+                        src={categorie.logo || ""}
                         alt={categorie.nom}
                         width={40}
                         height={40}

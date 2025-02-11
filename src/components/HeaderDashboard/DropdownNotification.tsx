@@ -3,7 +3,7 @@
 import type React from "react"
 import { useEffect, useState, useRef, useCallback } from "react"
 import Link from "next/link"
-import ClickOutside from "@/components/ClickOutside"
+import ClickOutside from "@/components/LandingPage/ClickOutside"
 import Image from "next/image"
 
 interface Alert {
