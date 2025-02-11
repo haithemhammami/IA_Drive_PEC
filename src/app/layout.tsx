@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Inter } from "next/font/google"
+import { Inter, Poppins } from "next/font/google"
 import { ThemeProvider } from "@/components/LandingPage/theme-provider"
 import type React from "react"
 
 const inter = Inter({ subsets: ["latin"] })
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+})
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="fr" className={`${poppins.variable}`} suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}

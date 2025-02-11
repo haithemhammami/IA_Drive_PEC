@@ -1,35 +1,108 @@
-<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .logo-text { font-family: 'Poppins', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
-    .primary { fill: #FF6B6B; } /* Couleur vive et fun */
-    .secondary { fill: #FFD93D; }
-    @media (prefers-color-scheme: dark) {
-      .primary { fill: #FF8E8E; }
-      .secondary { fill: #FFDD67; }
-    }
-  </style>
+<svg width="250" height="60" viewBox="0 0 250 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&amp;display=swap');
+      .logo-text { 
+        font-family: 'Caveat', cursive;
+        font-weight: 700; 
+        letter-spacing: 0.5px;
+      }
+      /* Mode clair */
+      .primary { fill: #4F46E5; }
+      .secondary { fill: #818CF8; }
+      .highlight { fill: #6366F1; }
+      .cart-fill { fill: #EEF2FF; }
+      .cart-stroke { stroke: #4F46E5; }
+      
+      /* Mode sombre */
+      @media (prefers-color-scheme: dark) {
+        .primary { fill: #818CF8; }
+        .secondary { fill: #A5B4FC; }
+        .highlight { fill: #6366F1; }
+        .cart-fill { fill: #1E1B4B; }
+        .cart-stroke { stroke: #818CF8; }
+      }
+    </style>
 
-  <!-- Bubble Symbol (Representing AI and Ideas) -->
-  <g class="primary">
-    <circle cx="20" cy="20" r="14" fill="currentColor" opacity="0.2"/>
-    <circle cx="20" cy="20" r="10" fill="currentColor" opacity="0.4"/>
-    <circle cx="20" cy="20" r="6" fill="currentColor"/>
+    <!-- Ajout d'effets de flou pour un aspect plus doux -->
+    <filter id="softBlur">
+      <feGaussianBlur stdDeviation="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Chariot amélioré -->
+  <g transform="translate(10, 12)">
+    <!-- Ombre douce sous le chariot -->
+    <ellipse cx="20" cy="38" rx="18" ry="3" 
+             fill="rgba(0,0,0,0.1)" 
+             filter="url(#softBlur)"/>
+    
+    <!-- Corps du chariot avec remplissage -->
+    <path d="M5,10 C8,9 20,10 35,10 
+             C34,16 32,23 30,30 
+             C25,31 15,31 10,30 
+             C8,25 6,15 5,10 Z" 
+          class="cart-stroke cart-fill"
+          stroke-width="2.5" 
+          stroke-linejoin="round"/>
+    
+    <!-- Détails décoratifs sur le chariot -->
+    <path d="M10,15 C15,14 25,14 30,15" 
+          class="cart-stroke"
+          stroke-width="1.5" 
+          fill="none" 
+          opacity="0.6"/>
+    
+    <!-- Poignée avec style plus fluide -->
+    <path d="M2,2 C5,-3 12,-4 18,4" 
+          class="cart-stroke"
+          stroke-width="2.5" 
+          fill="none" 
+          stroke-linecap="round"/>
+    
+    <!-- Roues avec détails -->
+    <g class="primary">
+      <circle cx="10" cy="34" r="4" 
+              class="cart-stroke cart-fill"
+              stroke-width="2"/>
+      <path d="M8,32 C9,33 11,35 12,36" 
+            class="cart-stroke"
+            stroke-width="1.5" 
+            fill="none"/>
+      <!-- Point central -->
+      <circle cx="10" cy="34" r="1" 
+              class="cart-stroke"/>
+    </g>
+    
+    <g class="primary">
+      <circle cx="30" cy="34" r="4" 
+              class="cart-stroke cart-fill"
+              stroke-width="2"/>
+      <path d="M28,32 C29,33 31,35 32,36" 
+            class="cart-stroke"
+            stroke-width="1.5" 
+            fill="none"/>
+      <!-- Point central -->
+      <circle cx="30" cy="34" r="1" 
+              class="cart-stroke"/>
+    </g>
   </g>
 
-  <!-- Food Spark Icon -->
-  <g class="secondary" transform="translate(16, 16)">
-    <circle cx="0" cy="0" r="3" fill="currentColor"/>
-    <circle cx="8" cy="-4" r="2" fill="currentColor"/>
-    <circle cx="10" cy="5" r="2.5" fill="currentColor"/>
+  <!-- Texte avec effet de superposition subtil -->
+  <g class="logo-text">
+    <text x="60" y="35" font-size="36" 
+          class="primary" 
+          text-anchor="start">
+      Yumi<tspan class="secondary" dx="2">Mind</tspan>
+    </text>
+    
+    <!-- Tagline avec espacement amélioré -->
+    <text x="65" y="50" 
+          class="secondary" 
+          font-size="16" 
+          text-anchor="start"
+          letter-spacing="1">
+      Smart &amp; Tasty
+    </text>
   </g>
-
-  <!-- Text "YumiMind" -->
-  <text x="50" y="25" class="logo-text primary" font-size="24">
-    Yumi<tspan class="secondary">Mind</tspan>
-  </text>
-
-  <!-- AI Tagline -->
-  <text x="50" y="35" class="logo-text secondary" font-size="10">
-    Smart & Tasty
-  </text>
 </svg>
