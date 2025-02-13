@@ -58,7 +58,7 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
     }
-  }, [chatContainerRef]) // Removed messages from dependencies
+  }, [chatContainerRef, messages]) // Added messages to dependencies
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -207,23 +207,25 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
   }
 
   const postMissingProducts = async (missingProducts: string[]) => {
-    try {
-      const response = await fetch("/api/analyses", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ missingProducts }),
-      })
+    for (const product of missingProducts) {
+      try {
+        const response = await fetch("/api/analyses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ missingProduct: product }),
+        })
 
-      if (!response.ok) {
-        throw new Error("Failed to post missing products")
+        if (!response.ok) {
+          throw new Error(`Failed to post missing product: ${product}`)
+        }
+
+        const result = await response.json()
+        console.log(`Missing product posted successfully: ${product}`, result)
+      } catch (error) {
+        console.error(`Error posting missing product: ${product}`, error)
       }
-
-      const result = await response.json()
-      console.log("Missing products posted successfully:", result)
-    } catch (error) {
-      console.error("Error posting missing products:", error)
     }
   }
 

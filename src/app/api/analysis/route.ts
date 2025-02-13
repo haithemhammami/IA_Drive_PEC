@@ -4,24 +4,20 @@ import prisma from "@/lib/prisma"
 export async function POST(req: Request) {
   console.log("POST /api/analyses called")
   try {
-    const { missingProducts } = await req.json()
-    console.log("Received missing products:", missingProducts)
-    if (!missingProducts || !Array.isArray(missingProducts)) {
-      return NextResponse.json({ error: "Invalid missing products data" }, { status: 400 })
+    const { missingProduct } = await req.json()
+    console.log("Received missing product:", missingProduct)
+    if (!missingProduct || typeof missingProduct !== "string") {
+      return NextResponse.json({ error: "Invalid missing product data" }, { status: 400 })
     }
 
-    const createdEntries = await Promise.all(
-      missingProducts.map(async (name) => {
-        return prisma.analysis.create({
-          data: { name },
-        })
-      }),
-    )
+    const createdEntry = await prisma.analysis.create({
+      data: { name: missingProduct, createdAt: new Date() },
+    })
 
-    console.log("Missing products added to analysis:", createdEntries)
-    return NextResponse.json(createdEntries, { status: 201 })
+    console.log("Missing product added to analysis:", createdEntry)
+    return NextResponse.json(createdEntry, { status: 201 })
   } catch (error) {
-    console.error("Error posting missing products:", error)
+    console.error("Error posting missing product:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
