@@ -16,13 +16,7 @@ export function Header() {
   const { theme, setTheme } = useTheme();
   const [isWaving, setIsWaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  interface Product {
-    id: string;
-    name: string;
-  }
-
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const router = typeof window !== 'undefined' ? useRouter() : null;
+  const router = useRouter();
   const [userId, setUserId] = useState("guest");
 
   useEffect(() => {
@@ -50,7 +44,7 @@ export function Header() {
 
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (searchQuery.trim() && router) {
+    if (searchQuery.trim()) {
       router.push(`/search?query=${searchQuery}`);
     }
   };

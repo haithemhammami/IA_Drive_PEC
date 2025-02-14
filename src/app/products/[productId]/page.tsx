@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-
+import Image from "next/image";
 export default async function ProductPage({ params }: { params: { productId: string } }) {
   const product = await prisma.produit.findUnique({
     where: { id: parseInt(params.productId) },
@@ -12,7 +12,7 @@ export default async function ProductPage({ params }: { params: { productId: str
   return (
     <div className="flex flex-col justify-center px-2 py-12 my-12 mx-auto w-3/4 aspect-square bg-white shadow-lg rounded-lg">
       {product.image && (
-        <img
+        <Image
           src={product.image}
           alt={product.nom}
           className="h-40 w-full object-cover rounded-md"

@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Utilisateur } from '@prisma/client';
-import {jwtDecode} from 'jwt-decode';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<Utilisateur | null>(null);

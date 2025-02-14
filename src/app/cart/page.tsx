@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
+import Image from 'next/image'; // Import next/image
 
 interface Product {
   id: number;
@@ -19,7 +19,8 @@ interface CartItem {
 }
 
 export default function CartPage() {
-  const { utilisateurId } = useParams(); // Récupérer l'ID utilisateur depuis l'URL
+  const params = useParams();
+  const utilisateurId = params?.utilisateurId as string | undefined; // Récupérer l'ID utilisateur depuis l'URL
   const [cartItems, setCartItems] = useState<CartItem[]>([]); // Liste des articles du panier
   const [loading, setLoading] = useState<boolean>(true); // Pour afficher le loading
   const [error, setError] = useState<string | null>(null); // Gérer les erreurs
@@ -53,8 +54,12 @@ export default function CartPage() {
         }
         const data = await res.json();
         setCartItems(data); // Stocker les éléments du panier dans l'état
-      } catch (err: any) {
-        setError(err.message); // Gérer les erreurs
+      } catch (err: unknown) { // Specify the error type
+        if (err instanceof Error) {
+          setError(err.message); // Gérer les erreurs
+        } else {
+          setError('Une erreur inconnue est survenue'); // Gérer les erreurs inconnues
+        }
       } finally {
         setLoading(false); // Fin du chargement
       }
@@ -84,10 +89,12 @@ export default function CartPage() {
       <div>
         {cartItems.map((item) => (
           <div key={item.id} style={{ display: 'flex', marginBottom: '20px' }}>
-            <img
+            <Image
               src={item.produit.image || '/default-image.jpg'}
               alt={item.produit.nom}
-              style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+              width={100}
+              height={100}
+              style={{ objectFit: 'cover' }}
             />
             <div style={{ marginLeft: '20px' }}>
               <h2>{item.produit.nom}</h2>

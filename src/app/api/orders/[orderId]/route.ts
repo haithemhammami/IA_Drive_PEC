@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
+import {prisma} from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
 //import nodemailer from "nodemailer"; // Import nodemailer for sending emails

@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
@@ -42,9 +41,9 @@ const menuGroups = [
         label: "Dashboard",
         route: "#",
         children: [
-          { label: "Accueil", route: "/dashboard" },
-          { label: "Liste rayons", route: "/dashboard/lists/categories" },
-          { label: "Liste produits", route: "/dashboard/lists/products" },
+          { label: "Accueil", route: "/dashboard", icon: <></>, onClick: () => {} },
+          { label: "Liste rayons", route: "/dashboard/lists/categories", icon: <></>, onClick: () => {} },
+          { label: "Liste produits", route: "/dashboard/lists/products", icon: <></>, onClick: () => {} },
           
         ],
       },
@@ -71,8 +70,8 @@ const menuGroups = [
         label: "Gestion",
         route: "#",
         children: [
-          { label: "Commandes", route: "/dashboard/lists/orders" },
-          { label: "Analyse", route: "/analyse" },
+          { label: "Commandes", route: "/dashboard/lists/orders", icon: <></>, onClick: () => {} },
+          { label: "Analyse", route: "/analyse", icon: <></>, onClick: () => {} },
         ],
       },
 
@@ -109,8 +108,8 @@ const menuGroups = [
         label: "Logistique",
         route: "#",
         children: [
-          { label: "Gérer les rayons", route: "/dashboard/manage/categories" },
-          { label: "Gérer les produits", route: "/dashboard/manage/products" },
+          { label: "Gérer les rayons", route: "/dashboard/manage/categories", icon: <></>, onClick: () => {} },
+          { label: "Gérer les produits", route: "/dashboard/manage/products", icon: <></>, onClick: () => {} },
         ],
       },
 
@@ -192,8 +191,8 @@ const menuGroups = [
         label: "Alerts",
         route: "#",
         children: [
-          { label: "Alerts Produits", route: "/dashboard/alerts" },
-          { label: "Avis Utilisateurs", route: "/dashboard/alertsUsers" },
+          { label: "Alerts Produits", route: "/dashboard/alerts", icon: <></>, onClick: () => {} },
+          { label: "Avis Utilisateurs", route: "/dashboard/alertsUsers", icon: <></>, onClick: () => {} },
         ],
       },
       {
@@ -219,8 +218,8 @@ const menuGroups = [
         label: "Direction",
         route: "#",
         children: [
-          { label: "Magasin  Drive", route: "/" },
-          { label: "Fournisseur Drive", route: "/dashboard/lists/suppliers" },
+          { label: "Magasin  Drive", route: "/", icon: <></>, onClick: () => {} },
+          { label: "Fournisseur Drive", route: "/dashboard/lists/suppliers", icon: <></>, onClick: () => {} },
 
         ],
       },

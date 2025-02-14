@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 
 export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = context.params;  // Extraire l'ID utilisateur des paramètres
+  const { utilisateurId } =  await context.params;  // Extraire l'ID utilisateur des paramètres
 
   // Convertir l'ID utilisateur en entier
   const utilisateurIdInt = parseInt(utilisateurId);
@@ -77,7 +77,7 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
 }
 
 export async function DELETE(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = context.params;
+  const { utilisateurId } = await context.params;
   const { productId, removeAll } = await req.json();
 
   // Convertir l'ID utilisateur et produit en entier

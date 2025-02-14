@@ -52,6 +52,8 @@ export function TutorialVideo() {
               src={`https://img.youtube.com/vi/N0ADpGqGhY8/maxresdefault.jpg`}
               alt="Miniature de la vidéo tutorielle"
               className="aspect-video w-full object-cover"
+              width={1280}
+              height={720}
             />
           )}
         </motion.div>

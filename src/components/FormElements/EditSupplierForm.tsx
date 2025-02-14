@@ -19,14 +19,13 @@ const EditSupplierForm: React.FC<EditSupplierFormProps> = ({ supplier, onUpdate,
     setEditedSupplier((prev) => ({ ...prev, [name]: name === "minPurchase" ? Number(value) : value }))
   }, [])
 
-  //const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-  //  if (e.target.files && e.target.files[0]) {
-  //    const file = e.target.files[0]
-  //    setNewLogo(file)
-  //    setPreviewLogo(URL.createObjectURL(file))
-  //  }
-  //}, [])
-  //<input type="file" accept="image/*" onChange={handleFileChange} className="w-full p-2 mb-2 border rounded" />
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setNewLogo(file)
+      setPreviewLogo(URL.createObjectURL(file))
+    }
+  }, [])
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -105,7 +104,7 @@ const EditSupplierForm: React.FC<EditSupplierFormProps> = ({ supplier, onUpdate,
             className="rounded"
           />
         </div>
-        
+        <input type="file" accept="image/*" onChange={handleFileChange} className="w-full p-2 mb-2 border rounded" />
         <div className="flex justify-end mt-4">
           <button
             type="button"

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
+import {prisma} from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
 import jwt from "jsonwebtoken";
 
 export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = context.params;
+  const { utilisateurId } = await context.params;
 
   // Récupérer le token JWT de l'utilisateur connecté
   const token = req.headers.get('Authorization')?.split(' ')[1];

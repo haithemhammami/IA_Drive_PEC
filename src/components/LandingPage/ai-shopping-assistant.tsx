@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Brain, Camera, Upload, Send, Loader2, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -10,12 +10,6 @@ import { useRouter } from "next/navigation"
 interface Message {
   type: "assistant" | "user"
   content: string
-}
-
-interface Ingredient {
-  name: string
-  quantity?: string
-  unit?: string
 }
 
 interface Recipe {
@@ -29,6 +23,13 @@ interface AnalysisResult {
   visibleIngredients: string[]
   suggestedIngredients: string[]
   recipe: Recipe
+}
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  imageUrl: string
 }
 
 export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
@@ -47,6 +48,63 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
   const [currentDish, setCurrentDish] = useState<string | null>(null)
   const [missingIngredients, setMissingIngredients] = useState<string[]>([])
   const router = useRouter()
+
+  const sendMessage = useCallback(async (content: string, type: "user" | "assistant") => {
+    const newMessage: Message = { type, content }
+    setMessages((prev) => [...prev, newMessage])
+
+    if (type === "user") {
+      setIsLoading(true)
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [...messages.map((m) => ({ role: m.type, content: m.content })), { role: "user", content }],
+            currentDish,
+            detectedIngredients,
+            suggestedIngredients,
+            missingIngredients,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error("Erreur lors de la communication avec l'assistant")
+        }
+
+        const data = await response.json()
+        sendMessage(data.message, "assistant")
+
+        if (data.recipe) {
+          setRecipe(data.recipe)
+        }
+
+        if (data.newDish) {
+          setCurrentDish(data.newDish)
+          setDetectedIngredients([])
+          setSuggestedIngredients([])
+          setMissingIngredients([])
+        }
+
+        if (data.products && data.products.length > 0) {
+          const productMessage = `Voici les produits suggérés : ${data.products.join(
+            ", ",
+          )}. Voulez-vous voir ces produits dans notre magasin ?`
+          sendMessage(productMessage, "assistant")
+        }
+
+        if (data.purchaseRequest) {
+          const confirmMessage = `Voulez-vous voir les produits suivants dans notre magasin : ${data.purchaseRequest.join(", ")} ?`
+          sendMessage(confirmMessage, "assistant")
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'envoi du message:", error)
+        sendMessage("Désolé, une erreur s'est produite. Veuillez réessayer.", "assistant")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+  }, [messages, currentDish, detectedIngredients, suggestedIngredients, missingIngredients])
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -67,7 +125,7 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
         "assistant",
       )
     }
-  }, [isOpen, messages.length])
+  }, [isOpen, messages.length, sendMessage])
 
   const handleCameraAccess = async () => {
     try {
@@ -76,7 +134,7 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
         videoRef.current.srcObject = stream
         setShowCamera(true)
       }
-    } catch (err) {
+    } catch (error) {
       sendMessage("Désolé, je n'ai pas pu accéder à votre caméra. Veuillez vérifier les autorisations.", "assistant")
     }
   }
@@ -229,69 +287,7 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
     }
   }
 
-  const sendMessage = async (content: string, type: "user" | "assistant") => {
-    const newMessage: Message = { type, content }
-    setMessages((prev) => [...prev, newMessage])
-
-    if (type === "user") {
-      setIsLoading(true)
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: [...messages.map((m) => ({ role: m.type, content: m.content })), { role: "user", content }],
-            currentDish,
-            detectedIngredients,
-            suggestedIngredients,
-            missingIngredients,
-          }),
-        })
-
-        if (!response.ok) {
-          throw new Error("Erreur lors de la communication avec l'assistant")
-        }
-
-        const data = await response.json()
-        sendMessage(data.message, "assistant")
-
-        if (data.recipe) {
-          setRecipe(data.recipe)
-        }
-
-        if (data.newDish) {
-          setCurrentDish(data.newDish)
-          setDetectedIngredients([])
-          setSuggestedIngredients([])
-          setMissingIngredients([])
-        }
-
-        if (data.products && data.products.length > 0) {
-          const productMessage = `Voici les produits suggérés : ${data.products.join(
-            ", ",
-          )}. Voulez-vous voir ces produits dans notre magasin ?`
-          sendMessage(productMessage, "assistant")
-        }
-
-        if (data.purchaseRequest) {
-          const confirmMessage = `Voulez-vous voir les produits suivants dans notre magasin : ${data.purchaseRequest.join(", ")} ?`
-          sendMessage(confirmMessage, "assistant")
-        }
-      } catch (error) {
-        console.error("Erreur lors de l'envoi du message:", error)
-        sendMessage("Désolé, une erreur s'est produite. Veuillez réessayer.", "assistant")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-  }
-
   const handleViewProducts = (products: string[]) => {
-    const queryString = new URLSearchParams({ ingredients: products.join(",") }).toString()
-    router.push(`/products?${queryString}`)
-  }
-
-  const handlePurchaseRequest = (products: string[]) => {
     const queryString = new URLSearchParams({ ingredients: products.join(",") }).toString()
     router.push(`/products?${queryString}`)
   }
@@ -301,12 +297,6 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
 
     sendMessage(userInput, "user")
     setUserInput("")
-  }
-
-  const handleViewProductsAll = () => {
-    const allIngredients = [...detectedIngredients, ...suggestedIngredients]
-    const queryString = new URLSearchParams({ ingredients: allIngredients.join(",") }).toString()
-    router.push(`/products?${queryString}`)
   }
 
   const renderMessage = (message: Message) => {
@@ -351,6 +341,14 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
 
     return <p className="text-sm whitespace-pre-line">{content}</p>
   }
+
+  const handleError = (error: Error) => {
+    console.error(error);
+  };
+
+  const handleProducts = (products: Product[]) => {
+    // Process products
+  };
 
   return (
     <div
@@ -493,12 +491,12 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
 
       {/* Toggle Button */}
       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="relative">
-        <Button
+        <button
           onClick={() => setIsOpen(!isOpen)}
           className="rounded-full w-16 h-16 shadow-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
         >
           <Brain className="h-8 w-8 text-white" />
-        </Button>
+        </button>
       </motion.div>
     </div>
   )

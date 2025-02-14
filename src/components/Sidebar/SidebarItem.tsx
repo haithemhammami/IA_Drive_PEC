@@ -2,7 +2,25 @@ import React from "react";
 import Link from "next/link";
 import SidebarDropdown from "@/components/Sidebar/SidebarDropdown";
 
-const SidebarItem = ({ item, pageName, setPageName }: any) => {
+interface SidebarItemProps {
+  item: {
+    label: string;
+    route: string;
+    icon: React.ReactNode;
+    message?: string;
+    pro?: boolean;
+    children?: {
+      label: string;
+      route: string;
+      icon: React.ReactNode;
+      onClick: () => void;
+    }[];
+  };
+  pageName: string;
+  setPageName: (pageName: string) => void;
+}
+
+const SidebarItem: React.FC<SidebarItemProps> = ({ item, pageName, setPageName }) => {
   const handleClick = () => {
     const updatedPageName =
       pageName !== item.label.toLowerCase() ? item.label.toLowerCase() : "";

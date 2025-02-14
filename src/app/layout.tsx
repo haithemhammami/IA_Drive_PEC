@@ -1,7 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
 import Head from "next/head";
-import localFont from "next/font/local";
 import "./globals.css";
 import { Inter, Poppins } from "next/font/google";
 import { ThemeProvider } from "@/components/LandingPage/theme-provider";
@@ -36,7 +35,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+  const [isAIAssistantOpen] = useState(false);
   const [isDashboardPage, setIsDashboardPage] = useState(false);
 
   /*const handleStartClick = () => {

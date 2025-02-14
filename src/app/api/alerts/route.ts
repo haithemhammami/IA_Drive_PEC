@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import prisma from "lib/prisma"
 
 const lowStockThreshold = 10
+const alertStateStore: { [key: number]: { lastAlertType: AlertType, lastAlertDate: Date } } = {}
 const RETRY_INTERVAL = 5000 // 5 seconds
 const CHECK_INTERVAL = 30000 // 30 seconds
 
@@ -14,7 +15,7 @@ enum AlertType {
 async function fetchAlerts(retries = 3): Promise<unknown[]> {
   try {
     return await prisma.alertes.findMany({
-      orderBy: { dateAlerte: "desc" },got 
+      orderBy: { dateAlerte: "desc" }
     })
   } catch (error) {
     if (retries > 0) {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  const sessionId = searchParams ? searchParams.get("session_id") : null;
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -20,6 +20,7 @@ export default function SuccessPage() {
         if (!res.ok) throw new Error(data.message);
         setMessage("Paiement réussi ! 🎉");
       } catch (err: unknown) {
+        console.error(err); // Log the error
         setMessage("Erreur de confirmation du paiement.");
       } finally {
         setLoading(false);

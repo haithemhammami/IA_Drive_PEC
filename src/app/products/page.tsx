@@ -66,6 +66,7 @@ export default function ProductsPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ utilisateurId: userId, productId: product.id }),
       })
@@ -75,7 +76,7 @@ export default function ProductsPage() {
       }
 
       const { cartItem } = await res.json()
-      alert("Produit ajouté au panier !")
+      setCart((prevCart) => [...prevCart, cartItem.produit])
     } catch (err: any) {
       console.error("Erreur lors de l'ajout au panier:", err.message)
     }
@@ -116,13 +117,13 @@ export default function ProductsPage() {
             {sortedProducts.map((product) => (
               <li key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
                 <Link href={`/products/${product.id}`} className="block">
-                  {product.image && (
+                  {product.image ? (
                     <img
                       src={product.image || "/placeholder.svg"}
                       alt={product.nom}
                       className="w-full h-64 object-contain group-hover:opacity-75 transition duration-300"
                     />
-                  )}
+                  ) : null}
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-gray-800">{product.nom}</h3>
                     <p className="text-gray-600 text-sm mb-2">{product.description}</p>

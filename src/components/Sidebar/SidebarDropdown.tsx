@@ -2,13 +2,19 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const SidebarDropdown = ({ item }: any) => {
+interface SidebarItem {
+  route: string;
+  label: string;
+  pro?: boolean;
+}
+
+const SidebarDropdown = ({ item }: { item: SidebarItem[] }) => {
   const pathname = usePathname();
 
   return (
     <>
       <ul className="my-2 flex flex-col gap-1.5 pl-9">
-        {item.map((item: any, index: number) => (
+        {item.map((item: SidebarItem, index: number) => (
           <li key={index}>
             <Link
               href={item.route}

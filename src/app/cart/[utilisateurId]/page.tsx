@@ -2,15 +2,33 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+
+interface CartItem {
+  id: number;
+  produitId: number;
+  produit: {
+    nom: string;
+  };
+  quantite: number;
+  prix: number;
+  image: string;
+}
 
 const UserCartPage = () => {
-  const { utilisateurId } = useParams(); // Récupérer l'ID utilisateur à partir des paramètres d'URL
+  const { utilisateurId } = useParams() as { utilisateurId: string }; // Récupérer l'ID utilisateur à partir des paramètres d'URL
   const router = useRouter();
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+
+  const fetchCartItems = async (utilisateurId: string): Promise<CartItem[]> => {
+    const response = await fetch(`/api/cart/${utilisateurId}`);
+    const data: CartItem[] = await response.json();
+    return data;
+  };
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -130,7 +148,7 @@ const UserCartPage = () => {
           <ul className="space-y-6 ">
             {cartItems.map((item) => (
               <li key={item.id} className="bg-white flex items-center space-x-6 p-4 border-b last:border-b-0 m-2">
-                <img src={item.image} alt={item.produit.nom} className="w-24 h-24 object-cover rounded-lg" />
+                <Image src={item.image} alt={item.produit.nom} width={96} height={96} className="object-cover rounded-lg" />
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold">{item.produit.nom}</h3>
                   <p className="text-gray-600">Quantité : {item.quantite}</p>

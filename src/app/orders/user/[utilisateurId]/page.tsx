@@ -4,11 +4,16 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 const UserOrdersPage = () => {
-  const { utilisateurId } = useParams();
+  const params = useParams();
+  const utilisateurId = params?.utilisateurId as string | undefined;
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    event.currentTarget.src = '/path/to/default/image.jpg'; // Chemin vers une image par défaut
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -50,31 +55,46 @@ const UserOrdersPage = () => {
   }
 
   return (
-    <div>
-      <h1>Commandes de l'utilisateur</h1>
+    <div className="p-5 font-sans">
+      <h1 className="text-2xl mb-5">Commandes de l'utilisateur</h1>
       {orders.length === 0 ? (
         <p>Aucune commande trouvée.</p>
       ) : (
-        <ul>
+        <div className="space-y-6">
           {orders.map((order) => (
-            <li key={order.id}>
-              <h2>Commande #{order.id}</h2>
-              <p>Statut: {order.statut.statut}</p>
-              <p>Total: {order.total}€</p>
-              <h3>Détails de la commande</h3>
-              <ul>
-                {order.commandeDetails.map((detail: any) => (
-                  <li key={detail.id}>
-                    <p>Produit: {detail.produit.nom}</p>
-                    <p>Quantité: {detail.quantite}</p>
-                    <p>Prix unitaire: {detail.prixUnitaire}€</p>
-                  </li>
-                ))}
-              </ul>
-              <button onClick={() => router.push(`/orders/${order.id}`)}>Voir la commande</button>
-            </li>
+            <div key={order.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-gray-800">Commande #{order.id}</h2>
+                <p className="text-gray-600 text-sm mb-2">Statut: {order.statut.statut}</p>
+                <p className="text-green-600 font-bold text-xl">Total: {order.total}€</p>
+                <h3 className="text-md mt-2">Détails de la commande</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {order.commandeDetails.map((detail: any) => (
+                    <div key={detail.id} className="text-gray-600 text-sm">
+                      <img 
+                        src={detail.produit.image || '/default-image.png'} 
+                        alt={`Image de ${detail.produit.nom}`} 
+                        className="w-full h-32 object-contain group-hover:opacity-75 transition duration-300" 
+                        onError={handleImageError} 
+                        aria-hidden="true"
+                      />
+                      <p>Produit: {detail.produit.nom}</p>
+                      <p>Quantité: {detail.quantite}</p>
+                      <p>Prix unitaire: {detail.prixUnitaire}€</p>
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  className="mt-3 text-blue-500 hover:underline" 
+                  onClick={() => router.push(`/orders/${order.id}`)}
+                  aria-label={`Voir la commande ${order.id}`}
+                >
+                  Voir la commande
+                </button>
+              </div>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

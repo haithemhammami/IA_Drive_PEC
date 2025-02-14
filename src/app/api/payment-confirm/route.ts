@@ -35,7 +35,7 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json({ message: "Paiement confirmé." });
-  } catch (error: any) {
+  } catch {
     return NextResponse.json({ message: "Erreur lors de la confirmation." }, { status: 500 });
   }
 }

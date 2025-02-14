@@ -3,8 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function useAuth() {
-  const [user, setUser] = useState<any>(null);  // L'état de l'utilisateur
+interface User {
+  // Define the User interface here
+}
+
+interface AuthContextType {
+  user: User | null;
+  isVerified: boolean;
+  isAdmin: boolean;
+  loading: boolean;
+}
+
+const useAuth = (): AuthContextType => {
+  const [user, setUser] = useState<User | null>(null);  // L'état de l'utilisateur
   const [loading, setLoading] = useState(true); // L'état de chargement
   const [isVerified, setIsVerified] = useState(false); // Vérifie si l'email est validé
   const [isAdmin, setIsAdmin] = useState(false); // Vérifie si l'utilisateur est admin
@@ -63,4 +74,6 @@ export default function useAuth() {
   }, [loading, user, isVerified, router]);
 
   return { user, isVerified, isAdmin, loading };
-}
+};
+
+export default useAuth;

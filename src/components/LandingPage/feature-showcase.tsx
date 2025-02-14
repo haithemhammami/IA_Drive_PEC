@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Camera, List, ShoppingBag } from "lucide-react"
+import Image from 'next/image';
 
 const features = [
   {
@@ -23,26 +24,26 @@ const features = [
 
 export function FeatureShowcase() {
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-800" id="features">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Nos fonctionnalités principales</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-            >
-              <feature.icon className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
-            </motion.div>
-          ))}
+    <section className="py-20 sm:py-32" id="features">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold text-center mb-8">Features</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="flex items-center justify-center">
+            <Image 
+              src="/uploads/1739038396412-2074.webp" 
+              alt="Feature Showcase Image" 
+              width={800} 
+              height={600} 
+              className="rounded-lg shadow-lg"
+            />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold mb-4">Amazing Feature</h3>
+            <p className="text-lg text-gray-700">Description of the amazing feature.</p>
+          </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
 

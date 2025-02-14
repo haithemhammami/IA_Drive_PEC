@@ -12,7 +12,8 @@ export async function POST(request: Request) {
       },
     })
     return NextResponse.json(newReview, { status: 201 })
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error(error);
     return NextResponse.json({ error: "Error creating review" }, { status: 400 })
   }
 }
@@ -25,7 +26,8 @@ export async function GET() {
       },
     })
     return NextResponse.json(reviews)
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error(error);
     return NextResponse.json({ error: "Error fetching reviews" }, { status: 400 })
   }
 }
@@ -46,7 +48,8 @@ export async function DELETE(request: Request) {
     })
 
     return NextResponse.json({ message: "Review deleted successfully" }, { status: 200 })
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error(error);
     return NextResponse.json({ error: "Error deleting review" }, { status: 400 })
   }
 }

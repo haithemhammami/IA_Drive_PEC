@@ -214,7 +214,6 @@ const FormElements: React.FC = () => {
         throw new Error("Failed to add product")
       }
 
-      const data = await response.json()
       setStatusMessage({ type: "success", message: "Produit ajouté avec succès !" })
       setTimeout(() => setStatusMessage(null), 10000) // Clear message after 10 seconds
       fetchProducts()
