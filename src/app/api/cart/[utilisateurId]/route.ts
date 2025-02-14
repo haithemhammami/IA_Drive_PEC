@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
+import { prisma } from "@/lib/prisma" 
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
 
@@ -66,11 +66,11 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
     }
 
     // Calculer le montant total du panier
-    const totalAmount = cartItems.reduce((total, item) => total + item.prix * item.quantite, 0);
+    const totalAmount = cartItems.reduce((total: number, item: { prix: number; quantite: number }) => total + item.prix * item.quantite, 0);
 
     return NextResponse.json({ cartItems, userName: user.nom, totalAmount }, { status: 200 });  // Retourner les éléments du panier avec les produits, le nom de l'utilisateur et le montant total
   } catch (error) {
-    console.error("Erreur lors de la récupération du panier:", error.message);
+    console.error("Erreur lors de la récupération du panier:", (error as Error).message);
     return NextResponse.json({ message: "Erreur lors de la récupération du panier" }, { status: 500 });
   }
 }
@@ -139,7 +139,7 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
 
     return NextResponse.json({ message: "Produit mis à jour dans le panier." }, { status: 200 });
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du produit dans le panier:", error.message);
+    console.error("Erreur lors de la mise à jour du produit dans le panier:", (error as Error).message);
     return NextResponse.json({ message: "Erreur lors de la mise à jour du produit dans le panier" }, { status: 500 });
   }
 }
@@ -195,7 +195,7 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
     }
 
     // Calculer le montant total du panier
-    const totalAmount = cartItems.reduce((total, item) => total + item.prix * item.quantite, 0);
+    const totalAmount = cartItems.reduce((total: number, item: { prix: number; quantite: number }) => total + item.prix * item.quantite, 0);
 
     // Vérifier si le statut par défaut existe
     let defaultStatus = await prisma.commandeStatut.findFirst({
@@ -217,7 +217,7 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
         total: totalAmount,
         createdAt: new Date(), 
         commandeDetails: {
-          create: cartItems.map((item) => ({
+          create: cartItems.map((item: { produitId: number; quantite: number; prix: number }) => ({
             produitId: item.produitId,
             quantite: item.quantite,
             prixUnitaire: item.prix,
@@ -227,7 +227,7 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
     });
 
     // Créer une session Stripe Checkout
-    const lineItems = cartItems.map((item) => ({
+    const lineItems = cartItems.map((item: { produit: { nom: string }; prix: number; quantite: number }) => ({
       price_data: {
         currency: "eur",
         product_data: { name: item.produit.nom },

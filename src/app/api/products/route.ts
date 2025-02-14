@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma'; // Assurez-vous que ce chemin est correct
+import {prisma} from '@/lib/prisma'; // Assurez-vous que ce chemin est correct
 
 // Fonction pour récupérer tous les produits
 export async function GET() {

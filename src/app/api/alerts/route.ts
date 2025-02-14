@@ -11,6 +11,8 @@ enum AlertType {
   STOCK_RECOVERED = "STOCK_RECOVERED",
 }
 
+const alertStateStore: { [produitId: number]: { lastAlertType: AlertType, lastAlertDate: Date } } = {}
+
 async function fetchAlerts(retries = 3): Promise<any[]> {
   try {
     return await prisma.alertes.findMany({
@@ -27,14 +29,14 @@ async function fetchAlerts(retries = 3): Promise<any[]> {
 }
 
 async function checkStockLevels() {
-  const products = await prisma.produit.findMany({
-    include: { alertState: true },
-  })
+  const products = await prisma.produit.findMany()
   const updatedAlerts = []
 
   for (const product of products) {
     let alertType: AlertType | null = null
     let message = ""
+
+    const alertState = alertStateStore[product.id]
 
     if (product.stock === 0) {
       alertType = AlertType.OUT_OF_STOCK
@@ -43,8 +45,8 @@ async function checkStockLevels() {
       alertType = AlertType.LOW_STOCK
       message = `Le stock du produit "${product.nom}" est bas (${product.stock} unités restantes). Pensez à réapprovisionner.`
     } else if (
-      product.alertState?.lastAlertType === AlertType.LOW_STOCK ||
-      product.alertState?.lastAlertType === AlertType.OUT_OF_STOCK
+      alertState?.lastAlertType === AlertType.LOW_STOCK ||
+      alertState?.lastAlertType === AlertType.OUT_OF_STOCK
     ) {
       alertType = AlertType.STOCK_RECOVERED
       message = `Le produit "${product.nom}" est à nouveau disponible en quantité suffisante (${product.stock} unités).`
@@ -69,20 +71,16 @@ async function createOrUpdateAlert(produitId: number, message: string, alertType
     where: { produitId },
   })
 
-  // Get the current alert state for the product
-  let alertState = await prisma.productAlertState.findUnique({
-    where: { produitId },
-  })
+  // Get the current alert state for the product from the in-memory store
+  let alertState = alertStateStore[produitId]
 
   // If no alert state exists, create one
   if (!alertState) {
-    alertState = await prisma.productAlertState.create({
-      data: {
-        produitId,
-        lastAlertType: alertType,
-        lastAlertDate: now,
-      },
-    })
+    alertState = {
+      lastAlertType: alertType,
+      lastAlertDate: now,
+    }
+    alertStateStore[produitId] = alertState
   }
 
   // Check if we need to create a new alert or update the existing one
@@ -108,14 +106,11 @@ async function createOrUpdateAlert(produitId: number, message: string, alertType
       })
     }
 
-    // Update the alert state
-    await prisma.productAlertState.update({
-      where: { produitId },
-      data: {
-        lastAlertType: alertType,
-        lastAlertDate: now,
-      },
-    })
+    // Update the alert state in the in-memory store
+    alertStateStore[produitId] = {
+      lastAlertType: alertType,
+      lastAlertDate: now,
+    }
 
     return alert
   }

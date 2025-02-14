@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import prisma from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
+import {prisma} from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { 
     apiVersion: "2025-01-27.acacia" });
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
 
       // Vider le panier de l'utilisateur
       await prisma.cart.deleteMany({
-        where: { utilisateurId: parseInt(session.metadata?.utilisateurId) },
+        where: { utilisateurId: parseInt(session.metadata?.utilisateurId || "0") },
       });
     }
 

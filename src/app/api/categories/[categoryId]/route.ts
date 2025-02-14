@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: Request, context: { params: { categoryId: string } }) {
-  const { categoryId } = await context.params;
+  const { categoryId } = context.params;
 
   try {
     const categoryIdInt = parseInt(categoryId);
@@ -26,13 +24,9 @@ export async function GET(req: Request, context: { params: { categoryId: string 
       },
     });
 
-    if (products.length === 0) {
-      return NextResponse.json({ message: 'Aucun produit trouvé pour cette catégorie' }, { status: 404 });
-    }
-
     return NextResponse.json(products);
   } catch (error) {
-    console.error(error);
+    console.error('Erreur API :', error);
     return NextResponse.json({ message: 'Erreur lors de la récupération des produits' }, { status: 500 });
   }
 }

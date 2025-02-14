@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-<<<<<<< HEAD
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,71 +35,6 @@ export default function SignUpPage() {
     }
   };
 
-=======
-
-export default function SignUpPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState(''); // Changed from motDePasse to password for consistency
-  const [prenom, setprenom] = useState(''); // Changed from prenom to prenom
-  const [nom, setnom] = useState(''); // Changed from nom to nom
-  const [address, setAddress] = useState(''); // Changed from adresse to address
-  const [telephone, settelephone] = useState(''); // Changed from telephone to phone
-  const [role, setRole] = useState('client'); // Default role
-  const router = useRouter();
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault(); // Empêche la soumission du formulaire par défaut
-  
-    // Log des données envoyées pour le débogage
-    console.log({
-      email,
-      password,
-      prenom,
-      nom,
-      address,
-      telephone,
-      role,
-    });
-  
-    try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          prenom,
-          nom,
-          address,
-          telephone,
-          role,
-        }),
-      });
-  
-      if (res.ok) {
-        // Succès : redirection vers la page de connexion
-        router.push('/auth/login');
-      } else {
-        // Vérifie si la réponse est en JSON
-        const contentType = res.headers.get('Content-Type');
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await res.json();
-          alert(errorData.error || 'Une erreur est survenue.');
-        } else {
-          // Si la réponse n'est pas en JSON
-          alert('Erreur inattendue. Veuillez réessayer.');
-        }
-      }
-    } catch (err) {
-      // Gestion des erreurs réseau ou autres exceptions
-      console.error('Erreur lors de la requête:', err);
-      alert('Impossible de contacter le serveur. Vérifiez votre connexion.');
-    }
-  };
-  
->>>>>>> fec7a9c (✨ Initial commit: lancement du nouveau projet)
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-white-100">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -167,11 +101,7 @@ export default function SignUpPage() {
                 name="prenom"
                 type="text"
                 value={prenom}
-<<<<<<< HEAD
                 onChange={(e) => setPrenom(e.target.value)}
-=======
-                onChange={(e) => setprenom(e.target.value)}
->>>>>>> fec7a9c (✨ Initial commit: lancement du nouveau projet)
                 placeholder="Prénom"
                 required
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -190,11 +120,7 @@ export default function SignUpPage() {
                 name="nom"
                 type="text"
                 value={nom}
-<<<<<<< HEAD
                 onChange={(e) => setNom(e.target.value)}
-=======
-                onChange={(e) => setnom(e.target.value)}
->>>>>>> fec7a9c (✨ Initial commit: lancement du nouveau projet)
                 placeholder="Nom"
                 required
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -221,11 +147,7 @@ export default function SignUpPage() {
             </div>
           </div>
 
-<<<<<<< HEAD
           {/* Telephone Field */}
-=======
-          {/* telephone Field */}
->>>>>>> fec7a9c (✨ Initial commit: lancement du nouveau projet)
           <div>
             <label htmlFor="telephone" className="block text-sm font-medium leading-6 text-gray-900">
               Téléphone
@@ -236,11 +158,7 @@ export default function SignUpPage() {
                 name="telephone"
                 type="text"
                 value={telephone}
-<<<<<<< HEAD
                 onChange={(e) => setTelephone(e.target.value)}
-=======
-                onChange={(e) => settelephone(e.target.value)}
->>>>>>> fec7a9c (✨ Initial commit: lancement du nouveau projet)
                 placeholder="Téléphone"
                 required
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -248,34 +166,9 @@ export default function SignUpPage() {
             </div>
           </div>
 
-<<<<<<< HEAD
           {/* Submit Button */}
           <button
             type="submit"
-=======
-          {/* Role Selection */}
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium leading-6 text-gray-900">
-              Rôle
-            </label>
-            <div className="mt-2">
-              <select
-                id="role"
-                name="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              >
-                <option value="client">Client</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit" // Ensure this button submits the form
->>>>>>> fec7a9c (✨ Initial commit: lancement du nouveau projet)
             className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
             S'inscrire

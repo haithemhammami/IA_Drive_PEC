@@ -1,15 +1,13 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Produit } from "@prisma/client";
-import {jwtDecode} from "jwt-decode"; // Correct import for jwt-decode v4.0.0
+import jwtDecode from "jwt-decode";  // Assurez-vous que vous utilisez la bonne version de jwt-decode
+import { Produit } from "@prisma/client";  // Import correct pour utiliser les produits
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Produit[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [cart, setCart] = useState<Produit[]>([]);
   const [userId, setUserId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -31,17 +29,17 @@ export default function ProductsPage() {
 
     fetchProducts();
 
-    // Decode JWT to retrieve user ID
+    // Décodez le token pour obtenir l'ID de l'utilisateur
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decoded: any = jwtDecode(token); // Using jwtDecode correctly
-        setUserId(decoded.userId);
+        const decoded: any = jwtDecode(token);  // Utilisez jwt-decode correctement
+        setUserId(decoded.userId);  // Définir l'ID utilisateur à partir du token
       } catch (err) {
         console.error("Erreur de décodage du token", err);
       }
     }
-  }, []); // Empty dependency array ensures this runs only once after the component mounts
+  }, []);
 
   const addToCart = async (product: Produit) => {
     if (!userId) {
@@ -54,7 +52,6 @@ export default function ProductsPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ utilisateurId: userId, productId: product.id }),
       });
@@ -64,7 +61,7 @@ export default function ProductsPage() {
       }
 
       const { cartItem } = await res.json();
-      setCart((prevCart) => [...prevCart, cartItem.produit]);
+      alert("Produit ajouté au panier !");
     } catch (err: any) {
       console.error("Erreur lors de l'ajout au panier:", err.message);
     }
@@ -81,18 +78,15 @@ export default function ProductsPage() {
         {products.length > 0 ? (
           <ul className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
             {products.map((product) => (
-              <li
-                key={product.id}
-                className="group"
-              >
+              <li key={product.id} className="group">
                 <Link href={`/products/${product.id}`} className="block">
-                  {product.image ? (
+                  {product.image && (
                     <img
                       src={product.image}
                       alt={product.nom}
                       className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8"
                     />
-                  ) : null}
+                  )}
                   <h3 className="mt-4 text-m text-gray-700 font-bold">{product.nom}</h3>
                   <p className="text-gray-600 text-sm mb-1">{product.description}</p>
                   <p className="text-green-600 font-medium text-lg">Prix : {product.prix} €</p>

@@ -1,18 +1,17 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import prisma from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
+import { prisma } from "@/lib/prisma" 
 
 export async function POST(request: Request) {
   try {
-    // Récupérer le corps de la requête
     const body = await request.json();
     console.log("Requête reçue:", body);
 
-    // Vérifier si l'utilisateur est connecté (vérifier l'ID utilisateur)
+    // Vérifier si l'utilisateur est connecté
     if (!body.utilisateurId) {
       return NextResponse.json(
         { message: "Utilisateur non connecté." },
-        { status: 401 } // Erreur 401 si l'utilisateur n'est pas connecté
+        { status: 401 }
       );
     }
 
@@ -20,14 +19,14 @@ export async function POST(request: Request) {
     if (!body.productId) {
       return NextResponse.json(
         { message: "ID du produit requis." },
-        { status: 400 } // Erreur 400 si l'ID du produit est manquant
+        { status: 400 }
       );
     }
 
-    // Convertir les IDs en entiers
     const utilisateurIdInt = Number(body.utilisateurId);
     const productIdInt = Number(body.productId);
 
+    // Valider les IDs
     if (isNaN(utilisateurIdInt) || isNaN(productIdInt)) {
       return NextResponse.json(
         { message: "ID utilisateur et produit doivent être valides." },
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Vérifier si l'utilisateur existe dans la base de données
+    // Vérifier si l'utilisateur existe
     const user = await prisma.utilisateur.findUnique({
       where: { id: utilisateurIdInt },
     });
@@ -43,11 +42,11 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         { message: "Utilisateur non trouvé." },
-        { status: 404 } // Erreur 404 si l'utilisateur n'existe pas
+        { status: 404 }
       );
     }
 
-    // Récupérer le produit à partir de l'ID
+    // Vérifier si le produit existe
     const product = await prisma.produit.findUnique({
       where: { id: productIdInt },
       select: { prix: true, image: true },
@@ -56,22 +55,14 @@ export async function POST(request: Request) {
     if (!product) {
       return NextResponse.json(
         { message: "Produit non trouvé." },
-        { status: 404 } // Erreur 404 si le produit n'existe pas
+        { status: 404 }
       );
     }
 
-    // Vérifier que le prix du produit est valide
-    if (product.prix === null || product.prix === undefined) {
-      return NextResponse.json(
-        { message: "Erreur: prix du produit manquant." },
-        { status: 500 } // Erreur interne serveur si le prix est manquant
-      );
-    }
-
-    // Vérifier que l'image est bien définie ou utiliser une valeur par défaut
+    // Vérifier la présence du prix et de l'image
     const imageFinale = product.image || "default-image.jpg";
 
-    // Vérifier si l'élément existe déjà dans le panier
+    // Vérifier si l'élément est déjà dans le panier
     const existingCartItem = await prisma.cart.findFirst({
       where: {
         utilisateurId: utilisateurIdInt,
@@ -80,7 +71,7 @@ export async function POST(request: Request) {
     });
 
     if (existingCartItem) {
-      // Si l'élément existe déjà, augmenter la quantité
+      // Augmenter la quantité si le produit existe déjà dans le panier
       const updatedCartItem = await prisma.cart.update({
         where: { id: existingCartItem.id },
         data: { quantite: existingCartItem.quantite + 1 },
@@ -88,24 +79,25 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ cartItem: updatedCartItem }, { status: 200 });
     } else {
-      // Si l'élément n'existe pas, créer un nouvel élément dans le panier
+      // Créer un nouvel élément dans le panier
       const newCartItem = await prisma.cart.create({
         data: {
           utilisateurId: utilisateurIdInt,
           produitId: productIdInt,
           quantite: 1,
-          prix: product.prix, // Prix validé plus haut
-          image: imageFinale, // Image ou valeur par défaut
-        } as Prisma.CartUncheckedCreateInput,
+          prix: product.prix,
+          image: imageFinale,
+        },
       });
 
       return NextResponse.json({ cartItem: newCartItem }, { status: 201 });
     }
   } catch (error: any) {
     console.error("Erreur lors de l'ajout au panier:", error.message);
-    return NextResponse.json({ message: "Erreur serveur." }, { status: 500 }); // Erreur serveur en cas d'exception
+    return NextResponse.json({ message: "Erreur serveur." }, { status: 500 });
   }
 }
+
 
 export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
   const { utilisateurId } = context.params;  // Récupérer l'ID utilisateur à partir des paramètres
