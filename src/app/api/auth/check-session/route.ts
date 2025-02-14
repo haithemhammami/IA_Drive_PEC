@@ -17,10 +17,14 @@ export async function GET(req: Request) {
     if (!secret) {
       return NextResponse.json({ error: 'JWT secret non défini' }, { status: 500 });
     }
-    interface DecodedToken {
-      userId: string;
+
+    // Vérifie si le token est bien formé
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, secret);
+    } catch (err) {
+      return NextResponse.json({ error: 'Token invalide ou mal formé' }, { status: 401 });
     }
-    const decoded = jwt.verify(token, secret) as DecodedToken;
     console.log("Decoded token:", decoded);
 
     // Vérification des propriétés du token décodé
@@ -30,7 +34,7 @@ export async function GET(req: Request) {
     
     // Récupère l'utilisateur dans la base de données
     const user = await prisma.utilisateur.findUnique({
-      where: { id: Number(decoded.userId) },
+      where: { id: decoded.userId },
     });
     console.log("Fetched user:", user);
 

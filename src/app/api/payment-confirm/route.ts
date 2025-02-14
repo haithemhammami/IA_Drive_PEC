@@ -1,12 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import Stripe from "stripe";
-import {prisma} from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
+import { prisma } from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { 
     apiVersion: "2025-01-27.acacia" });
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
   const sessionId = searchParams.get("session_id");
 
   if (!sessionId) {

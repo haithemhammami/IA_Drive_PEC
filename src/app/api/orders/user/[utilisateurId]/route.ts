@@ -1,12 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import {prisma} from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
 import jwt from "jsonwebtoken";
 
-export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = await context.params;
+export async function GET(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop();
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "");
+
+  if (isNaN(utilisateurIdInt)) {
+    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
+  }
 
   // Récupérer le token JWT de l'utilisateur connecté
-  const token = req.headers.get('Authorization')?.split(' ')[1];
+  const token = request.headers.get('Authorization')?.split(' ')[1];
   if (!token) {
     return NextResponse.json({ message: "Non authentifié" }, { status: 401 });
   }
@@ -20,23 +25,15 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
   interface DecodedToken {
     userId: number;
   }
-  
-  let decoded: DecodedToken;       
+
+  let decoded: DecodedToken;
   try {
     decoded = jwt.verify(token, secret) as DecodedToken;
   } catch (error: unknown) {
     console.error('Erreur de vérification du token:', error instanceof Error ? error.message : 'Erreur inconnue');
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
   }
-  
-  // Convertir l'ID utilisateur en entier
-  const utilisateurIdInt = parseInt(utilisateurId);
-  
-  // Vérification si l'ID utilisateur est valide
-  if (isNaN(utilisateurIdInt)) {
-    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
-  }
-  
+
   // Vérifier si l'utilisateur connecté est le propriétaire des commandes
   if (decoded.userId !== utilisateurIdInt) {
     return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 });

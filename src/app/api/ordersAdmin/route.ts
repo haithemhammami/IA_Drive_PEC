@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"
-import prisma from "lib/prisma"
+import { NextResponse, NextRequest } from "next/server";
+import prisma from "lib/prisma";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const orders = await prisma.commande.findMany({
       where: {
@@ -15,12 +15,12 @@ export async function GET() {
       orderBy: {
         createdAt: "desc",
       },
-    })
+    });
 
-    return NextResponse.json(orders)
+    return NextResponse.json(orders);
   } catch (error) {
-    console.error("Error fetching orders:", error)
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    console.error("Error fetching orders:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
