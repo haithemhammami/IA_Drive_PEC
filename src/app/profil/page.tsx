@@ -18,7 +18,7 @@ export default function ProfilePage() {
     }
 
     try {
-      const decoded: any = jwtDecode(token);
+      //const decoded: any = jwtDecode(token);
       fetch('/api/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,

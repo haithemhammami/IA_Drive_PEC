@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(analysisResult)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("❌ Erreur lors de l'analyse de l'image :", error)
     return NextResponse.json({ error: "Erreur lors de l'analyse de l'image" }, { status: 500 })
   }

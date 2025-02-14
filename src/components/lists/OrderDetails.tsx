@@ -264,7 +264,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ orderId, onClose }) => {
             fileName={`commande-${order.id}.pdf`}
             className="flex items-center rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
           >
-            {({ blob, url, loading, error }) =>
+            {({loading}) =>
               loading ? (
                 "Chargement du document..."
               ) : (

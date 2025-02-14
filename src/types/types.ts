@@ -1,5 +1,5 @@
 export interface Categorie {
-    logo: any;
+    logo: unknown;
     id: number;
     nom: string;
   }

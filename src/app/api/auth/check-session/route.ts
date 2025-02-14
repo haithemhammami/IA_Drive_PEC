@@ -17,7 +17,10 @@ export async function GET(req: Request) {
     if (!secret) {
       return NextResponse.json({ error: 'JWT secret non défini' }, { status: 500 });
     }
-    const decoded: any = jwt.verify(token, secret);
+    interface DecodedToken {
+      userId: string;
+    }
+    const decoded = jwt.verify(token, secret) as DecodedToken;
     console.log("Decoded token:", decoded);
 
     // Vérification des propriétés du token décodé
@@ -27,7 +30,7 @@ export async function GET(req: Request) {
     
     // Récupère l'utilisateur dans la base de données
     const user = await prisma.utilisateur.findUnique({
-      where: { id: decoded.userId },
+      where: { id: Number(decoded.userId) },
     });
     console.log("Fetched user:", user);
 

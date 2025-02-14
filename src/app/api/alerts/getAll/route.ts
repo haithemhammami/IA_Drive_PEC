@@ -10,11 +10,12 @@ export async function GET() {
     })
 
     return NextResponse.json(alerts)
-  } catch (error: any) {
-    if (error && typeof error === 'object') {
-      console.error("Error fetching alerts:", error)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching alerts:", error.message)
+    } else {
+      console.error("Unknown error occurred while fetching alerts")
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
-

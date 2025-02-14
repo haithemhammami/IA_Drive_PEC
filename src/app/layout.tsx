@@ -10,7 +10,7 @@ import { Footer } from "@/components/LandingPage/footer";
 import type React from "react";
 import { AnnouncementBanner } from "@/components/LandingPage/announcement-banner"
 import { AIShoppingAssistant } from "@/components/LandingPage/ai-shopping-assistant"
-import { HeroSection } from "@/components/LandingPage/hero-section";
+//import { HeroSection } from "@/components/LandingPage/hero-section";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +20,7 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
-const geistSans = localFont({
+/*const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
@@ -29,7 +29,7 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
-});
+});*/
 
 export default function RootLayout({
   children
@@ -39,9 +39,9 @@ export default function RootLayout({
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
   const [isDashboardPage, setIsDashboardPage] = useState(false);
 
-  const handleStartClick = () => {
+  /*const handleStartClick = () => {
     setIsAIAssistantOpen(true);
-  };
+  };*/
 
   useEffect(() => {
     if (typeof window !== "undefined") {

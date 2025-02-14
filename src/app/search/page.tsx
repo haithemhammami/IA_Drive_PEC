@@ -5,15 +5,16 @@ import axios from 'axios';
 import Link from 'next/link';
 import {jwtDecode} from 'jwt-decode';
 import { Produit } from '@prisma/client';
+import Image from 'next/image';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
   const query = searchParams ? searchParams.get('query') : null;
-  const router = useRouter();
+  //const router = useRouter();
   const [searchResults, setSearchResults] = useState<Produit[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [cart, setCart] = useState<Produit[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [, setCart] = useState<Produit[]>([]);
+  const [user, setUser] = useState<unknown>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -23,7 +24,7 @@ export default function SearchPage() {
     }
 
     try {
-      const decoded: any = jwtDecode(token);
+      const decoded: unknown = jwtDecode(token);
       fetch('/api/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -33,7 +34,7 @@ export default function SearchPage() {
         .then(data => {
           if (data.user) {
             setUser(data.user);
-            setUserId(decoded.userId);
+            setUserId((decoded as { userId: string }).userId);
           } else {
             alert("Veuillez vous connecter pour accéder à cette page.");
           }
@@ -50,7 +51,7 @@ export default function SearchPage() {
       const fetchSearchResults = async () => {
         try {
           const response = await axios.get(`/api/search?query=${query}`);
-          setSearchResults(response.data);
+          setSearchResults(response.data as Produit[]);
         } catch (error) {
           console.error('Error fetching search results:', error);
         }
@@ -82,8 +83,9 @@ export default function SearchPage() {
       const { cartItem } = await res.json()
       setCart((prevCart) => [...prevCart, cartItem.produit])
       alert("Produit ajouté au panier avec succès !");
-    } catch (err: any) {
-      console.error("Erreur lors de l'ajout au panier:", err.message)
+    } catch (erreur: unknown) {
+
+      console.error("Erreur lors de l'ajout au panier:", erreur instanceof Error ? erreur.message : erreur)
     }
   }
 
@@ -100,9 +102,10 @@ export default function SearchPage() {
             <li key={produit.id} className="group">
               <Link href={`/produit/${produit.id}`} className="block">
                 {produit.image ? (
-                  <img
-                    src={produit.image || "/placeholder.svg"}
+                  <Image
+                    src={produit.image || "/file.svg"}
                     alt={produit.nom}
+                    width={500} height={300}
                     className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-7/8"
                   />
                 ) : null}

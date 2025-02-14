@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from 'next/image'
 
 export function TutorialVideo() {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -47,7 +48,7 @@ export function TutorialVideo() {
               allowFullScreen
             ></iframe>
           ) : (
-            <img
+            <Image
               src={`https://img.youtube.com/vi/N0ADpGqGhY8/maxresdefault.jpg`}
               alt="Miniature de la vidéo tutorielle"
               className="aspect-video w-full object-cover"

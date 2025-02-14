@@ -74,7 +74,7 @@ export async function GET() {
     // Logging détaillé de l'erreur
     console.error("Erreur lors de la récupération des catégories:", error);
     if (error) {
-      const errorDetails = error as any;
+      const errorDetails = error as unknown as Record<string, unknown>;
       console.error("Détails de l'erreur:", {
         message: errorDetails.message,
         stack: errorDetails.stack,

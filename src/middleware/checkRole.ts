@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
 
 // Utiliser une seule instance de Prisma pour éviter les connexions multiples
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 export async function middleware(req: NextRequest) {
   console.log("Middleware exécuté pour :", req.nextUrl.pathname); // 🔍 Vérification
@@ -63,7 +63,8 @@ const validateToken = (token: string) => {
     // Décodage du token JWT
     const decodedToken = jwt.verify(token, secretKey) as { userId: string, role: string };
     return decodedToken;
-  } catch (error) {
+  } catch (error : unknown) {
+    console.error('Erreur de vérification du token:', error instanceof Error ? error.message : 'Erreur inconnue');
     throw new Error("Token invalide ou expiré");
   }
 };

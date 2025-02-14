@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 
 export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = await  context.params;  // Extraire l'ID utilisateur des paramètres
+  const { utilisateurId } = context.params;  // Extraire l'ID utilisateur des paramètres
 
   // Convertir l'ID utilisateur en entier
   const utilisateurIdInt = parseInt(utilisateurId);
@@ -28,10 +28,11 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
     return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
   }
 
-  let decoded: any;
+  let decoded: { userId: number };
   try {
-    decoded = jwt.verify(token, secret);
-  } catch (error) {
+    decoded = jwt.verify(token, secret) as { userId: number };
+  } catch (error: unknown) {
+    console.error('Erreur de vérification du token:', error instanceof Error ? error.message : 'Erreur inconnue');
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
   }
 
@@ -69,8 +70,8 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
     const totalAmount = cartItems.reduce((total, item) => total + item.prix * item.quantite, 0);
 
     return NextResponse.json({ cartItems, userName: user.nom, totalAmount }, { status: 200 });  // Retourner les éléments du panier avec les produits, le nom de l'utilisateur et le montant total
-  } catch (error) {
-    console.error("Erreur lors de la récupération du panier:", (error as any).message);
+  } catch (error: unknown) {
+    console.error("Erreur lors de la récupération du panier:", (error as Error).message);
     return NextResponse.json({ message: "Erreur lors de la récupération du panier" }, { status: 500 });
   }
 }
@@ -100,10 +101,11 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
     return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
   }
 
-  let decoded: any;
+  let decoded: { userId: number };
   try {
-    decoded = jwt.verify(token, secret);
-  } catch (error) {
+    decoded = jwt.verify(token, secret) as { userId: number };
+  } catch (error: unknown) {
+    console.error('Erreur de vérification du token:', error instanceof Error ? error.message : 'Erreur inconnue');
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
   }
 
@@ -138,14 +140,14 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
     }
 
     return NextResponse.json({ message: "Produit mis à jour dans le panier." }, { status: 200 });
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du produit dans le panier:", (error as any).message);
+  } catch (error: unknown) {
+    console.error("Erreur lors de la mise à jour du produit dans le panier:", (error as Error).message);
     return NextResponse.json({ message: "Erreur lors de la mise à jour du produit dans le panier" }, { status: 500 });
   }
 }
 
 export async function POST(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = await context.params;
+  const { utilisateurId } = context.params;
 
   // Convertir l'ID utilisateur en entier
   const utilisateurIdInt = parseInt(utilisateurId);
@@ -167,10 +169,11 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
     return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
   }
 
-  let decoded: any;
+  let decoded: { userId: number };
   try {
-    decoded = jwt.verify(token, secret);
-  } catch (error) {
+    decoded = jwt.verify(token, secret) as { userId: number };
+  } catch (error: unknown) {
+    console.error('Erreur de vérification du token:', error instanceof Error ? error.message : 'Erreur inconnue');
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
   }
 
@@ -249,8 +252,8 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
     });
 
     return NextResponse.json({ message: "Commande créée avec succès.", order: newOrder, url: session.url }, { status: 201 });
-  } catch (error: any) {
-    console.error("Erreur lors de la création de la commande:", error.message);
+  } catch (error: unknown) {
+    console.error("Erreur lors de la création de la commande:", (error as Error).message);
     return NextResponse.json({ message: "Erreur lors de la création de la commande" }, { status: 500 });
   }
 }

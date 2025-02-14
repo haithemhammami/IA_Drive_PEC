@@ -67,12 +67,12 @@ const DataStatsOne: React.FC = () => {
 
         const now = new Date()
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
+        //const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        //const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0)
 
         // Catégories
         setTotalCategories(categoriesData.length)
-        const newCategoriesThisMonth = categoriesData.filter((cat: any) => {
+        const newCategoriesThisMonth = categoriesData.filter((cat: { createdAt: string }) => {
           const createdDate = new Date(cat.createdAt)
           return createdDate >= firstDayOfMonth && createdDate <= now
         }).length

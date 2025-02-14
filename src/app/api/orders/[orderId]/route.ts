@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
-import nodemailer from "nodemailer"; // Import nodemailer for sending emails
+//import nodemailer from "nodemailer"; // Import nodemailer for sending emails
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-01-27.acacia" });
 
@@ -21,10 +21,11 @@ export async function GET(req: Request, context: { params: { orderId: string } }
     return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
   }
 
-  let decoded: any;
+  let decoded: { userId: number };
   try {
-    decoded = jwt.verify(token, secret);
-  } catch (error) {
+    decoded = jwt.verify(token, secret) as { userId: number };
+  } catch (error : unknown  ) {
+    console.error('Erreur de vérification du token:', error instanceof Error ? error.message : 'Erreur inconnue');
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
   }
 
@@ -61,8 +62,8 @@ export async function GET(req: Request, context: { params: { orderId: string } }
     }
 
     return NextResponse.json(order, { status: 200 });
-  } catch (error) {
-    console.error("Erreur lors de la récupération de la commande:", (error as any).message);
+  } catch (error : unknown) {
+    console.error("Erreur lors de la récupération de la commande:", error instanceof Error ? error.message : 'Erreur inconnue');
     return NextResponse.json({ message: "Erreur lors de la récupération de la commande" }, { status: 500 });
   }
 }
