@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: Request, context: { params: { categoryId: string } }) {
-  const { categoryId } = context.params;
+export async function GET(request: NextRequest) {
+  const categoryId = request.nextUrl.pathname.split('/').pop();
+  const categoryIdInt = Number.parseInt(categoryId || '');
+
+  if (isNaN(categoryIdInt)) {
+    return NextResponse.json({ message: 'ID de catégorie invalide' }, { status: 400 });
+  }
 
   try {
-    const categoryIdInt = parseInt(categoryId);
-    if (isNaN(categoryIdInt)) {
-      return NextResponse.json({ message: 'ID de catégorie invalide' }, { status: 400 });
-    }
-
     const category = await prisma.categorie.findUnique({
       where: { id: categoryIdInt },
     });
