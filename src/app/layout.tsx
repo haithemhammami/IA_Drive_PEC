@@ -9,7 +9,6 @@ import { Footer } from "@/components/LandingPage/footer";
 import type React from "react";
 import { AnnouncementBanner } from "@/components/LandingPage/announcement-banner"
 import { AIShoppingAssistant } from "@/components/LandingPage/ai-shopping-assistant"
-//import { HeroSection } from "@/components/LandingPage/hero-section";
 
 const inter = Inter({ subsets: ["latin"] });
 
