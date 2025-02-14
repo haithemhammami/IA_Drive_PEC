@@ -1,8 +1,18 @@
-import { prisma } from "@/lib/prisma"; 
+import { prisma } from "@/lib/prisma";
 import Image from "next/image";
+import { Produit } from "@prisma/client";
 
-interface ProductPageProps {
+
+type ProductPageProps = {
   params: { productId: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+// Function pour récupérer les données
+async function getProduct(productId: number): Promise<Produit | null> {
+  return await prisma.produit.findUnique({
+    where: { id: productId },
+  });
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
@@ -13,9 +23,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   // Récupérer le produit depuis la base de données
-  const product = await prisma.produit.findUnique({
-    where: { id: productId },
-  });
+  const product = await getProduct(productId);
 
   if (!product) {
     return <div className="text-center text-red-600 p-4">Produit non trouvé.</div>;
@@ -28,8 +36,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           src={product.image}
           alt={product.nom}
           className="h-40 w-full object-cover rounded-md"
-          width={300} // Ajout de la largeur requise
-          height={300} // Ajout de la hauteur requise
+          width={300}
+          height={300}
+          priority
         />
       )}
       <h1 className="mt-4 text-base text-gray-700 font-bold">{product.nom}</h1>
