@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
-import { writeFile } from "fs/promises"
+import { writeFile, unlink } from "fs/promises"
 import path from "path"
 
 const prisma = new PrismaClient()
@@ -49,6 +49,47 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Error creating supplier:", error)
     return NextResponse.json({ error: "Error creating supplier" }, { status: 500 })
+  }
+}
+
+// DELETE - Supprimer un fournisseur
+export async function DELETE(request: Request) {
+  try {
+    const url = new URL(request.url);
+    const id = Number.parseInt(url.pathname.split("/").pop() || "", 10);
+
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
+    }
+
+    const supplier = await prisma.supplier.findUnique({
+      where: { id },
+    });
+
+    if (!supplier) {
+      return NextResponse.json({ error: "Fournisseur non trouvé" }, { status: 404 });
+    }
+
+    if (supplier.logo) {
+      try {
+        const logoPath = path.join(process.cwd(), "public", supplier.logo);
+        await unlink(logoPath).catch(() => {});
+      } catch (error) {
+        console.error("Erreur lors de la suppression du logo:", error);
+      }
+    }
+
+    await prisma.supplier.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({
+      message: "Fournisseur supprimé avec succès",
+    });
+  } catch (error) {
+    console.error("Erreur DELETE:", error);
+    await prisma.$disconnect();
+    return NextResponse.json({ error: "Erreur lors de la suppression" }, { status: 500 });
   }
 }
 

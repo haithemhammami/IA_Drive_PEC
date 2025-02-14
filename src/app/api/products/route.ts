@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import {prisma} from "@/lib/prisma"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -61,7 +61,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { productId, userId } = await request.json(); // Assuming userId is passed in the request body
+    const url = new URL(request.url);
+    const productId = url.pathname.split("/").pop();
+    const { userId } = await request.json(); // Assuming userId is passed in the request body
 
     const response = await fetch('/api/cart', {
       method: 'POST',

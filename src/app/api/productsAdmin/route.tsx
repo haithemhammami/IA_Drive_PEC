@@ -157,11 +157,11 @@ export async function PUT(request: Request) {
 // DELETE - Supprimer un produit
 export async function DELETE(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const id = Number(searchParams.get("id"))
+    const url = new URL(request.url);
+    const id = Number.parseInt(url.pathname.split("/").pop() || "", 10);
 
-    if (!id) {
-      return NextResponse.json({ error: "L'ID du produit est requis" }, { status: 400 })
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
     }
 
     const existingProduct = await prisma.produit.findUnique({ where: { id } })

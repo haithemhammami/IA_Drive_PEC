@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import prisma from "lib/prisma"
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
+  const { searchParams, pathname } = new URL(request.url)
+  const userId = pathname.split("/").pop()
   const page = Number.parseInt(searchParams.get("page") || "1")
   const limit = Number.parseInt(searchParams.get("limit") || "10")
   const search = searchParams.get("search") || ""
