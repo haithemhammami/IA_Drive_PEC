@@ -9,19 +9,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export async function GET(request: NextRequest) {
   const utilisateurId = request.nextUrl.pathname.split("/").pop()
-  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
-
-  if (isNaN(utilisateurIdInt)) {
-    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 })
-  }
-
-  // Récupérer le token JWT de l'utilisateur connecté
   const token = request.headers.get("Authorization")?.split(" ")[1]
+
   if (!token) {
     return NextResponse.json({ message: "Non authentifié" }, { status: 401 })
   }
 
-  // Vérifier le token JWT
   const secret = process.env.JWT_SECRET
   if (!secret) {
     return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 })
@@ -35,13 +28,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 })
   }
 
-  // Vérifier si l'utilisateur connecté est le propriétaire du panier
+  if (utilisateurId === "guest") {
+    // Handle guest user logic here
+    return NextResponse.json({ message: "Fonctionnalité pour les invités non implémentée" }, { status: 501 })
+  }
+
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
+  if (isNaN(utilisateurIdInt)) {
+    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 })
+  }
+
   if (decoded.userId !== utilisateurIdInt) {
     return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 })
   }
 
   try {
-    // Utiliser les types Prisma pour les requêtes de base de données
     const user = await prisma.utilisateur.findUnique({
       where: { id: utilisateurIdInt },
       select: { nom: true },
@@ -239,5 +240,61 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error("Erreur lors de la création de la commande:", (error as Error).message)
     return NextResponse.json({ message: "Erreur lors de la création de la commande" }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop()
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
+  const { productId, quantity } = await request.json()
+  const productIdInt = Number.parseInt(productId)
+
+  if (isNaN(utilisateurIdInt) || isNaN(productIdInt) || isNaN(quantity)) {
+    return NextResponse.json({ message: "ID utilisateur, produit ou quantité invalide" }, { status: 400 })
+  }
+
+  const token = request.headers.get("Authorization")?.split(" ")[1]
+  if (!token) {
+    return NextResponse.json({ message: "Non authentifié" }, { status: 401 })
+  }
+
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 })
+  }
+
+  let decoded: { userId: number }
+  try {
+    decoded = jwt.verify(token, secret) as { userId: number }
+  } catch (error: unknown) {
+    console.error("Erreur de vérification du token:", error instanceof Error ? error.message : "Erreur inconnue")
+    return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 })
+  }
+
+  if (decoded.userId !== utilisateurIdInt) {
+    return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 })
+  }
+
+  try {
+    const cartItem = await prisma.cart.findFirst({
+      where: {
+        utilisateurId: utilisateurIdInt,
+        produitId: productIdInt,
+      },
+    })
+
+    if (!cartItem) {
+      return NextResponse.json({ message: "Produit non trouvé dans le panier." }, { status: 404 })
+    }
+
+    await prisma.cart.update({
+      where: { id: cartItem.id },
+      data: { quantite: quantity },
+    })
+
+    return NextResponse.json({ message: "Quantité du produit mise à jour dans le panier." }, { status: 200 })
+  } catch (error: unknown) {
+    console.error("Erreur lors de la mise à jour de la quantité du produit dans le panier:", (error as Error).message)
+    return NextResponse.json({ message: "Erreur lors de la mise à jour de la quantité du produit dans le panier" }, { status: 500 })
   }
 }

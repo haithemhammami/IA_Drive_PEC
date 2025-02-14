@@ -3,15 +3,17 @@ import ClickOutside from "@/components/ClickOutside";
 
 interface DefaultSelectOptionProps {
   options: string[];
+  onChange: (value: string) => void;
 }
 
-const DefaultSelectOption = ({ options }: DefaultSelectOptionProps) => {
+const DefaultSelectOption = ({ options, onChange }: DefaultSelectOptionProps) => {
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
     setIsOpen(false);
+    onChange(option);
   };
 
   return (

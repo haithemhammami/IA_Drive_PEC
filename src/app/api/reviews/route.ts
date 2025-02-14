@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import prisma from "lib/prisma"
+import jwt from "jsonwebtoken"
 
 export async function POST(request: Request) {
   try {
@@ -18,17 +19,12 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const reviews = await prisma.avisGlobale.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    })
+    const reviews = await prisma.avisGlobale.findMany()
     return NextResponse.json(reviews)
   } catch (error: unknown) {
-    console.error(error);
-    return NextResponse.json({ error: "Error fetching reviews" }, { status: 400 })
+    console.error("Erreur lors de la récupération des avis:", error instanceof Error ? error.message : "Erreur inconnue")
   }
 }
 

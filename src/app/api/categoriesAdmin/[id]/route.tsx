@@ -1,18 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from 'lib/prisma';
 import { writeFile, unlink, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { Categorie } from '@prisma/client'; 
 
 // GET - Récupérer une catégorie par ID
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
-    const id = parseInt(params.id, 10);
+    const id = request.nextUrl.pathname.split("/").pop();
+    const idInt = Number.parseInt(id || "");
 
-    if (isNaN(id)) {
+    if (isNaN(idInt)) {
       return NextResponse.json(
         { error: 'ID invalide' },
         { status: 400 }
@@ -20,7 +18,7 @@ export async function GET(
     }
 
     const categorie = await prisma.categorie.findUnique({
-      where: { id },
+      where: { id: idInt },
       include: {
         produits: true,
         _count: {
@@ -47,14 +45,12 @@ export async function GET(
 }
 
 // PUT - Mettre à jour une catégorie
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest) {
   try {
-    const id = parseInt(params.id, 10);
+    const id = request.nextUrl.pathname.split("/").pop();
+    const idInt = Number.parseInt(id || "");
 
-    if (isNaN(id)) {
+    if (isNaN(idInt)) {
       return NextResponse.json(
         { error: 'ID invalide' },
         { status: 400 }
@@ -74,7 +70,7 @@ export async function PUT(
 
     // Récupérer la catégorie existante
     const existingCategorie = await prisma.categorie.findUnique({
-      where: { id }
+      where: { id: idInt }
     }) as Categorie | null;
 
     if (!existingCategorie) {
@@ -115,7 +111,7 @@ export async function PUT(
 
     // Mise à jour de la catégorie
     const updatedCategorie = await prisma.categorie.update({
-      where: { id },
+      where: { id: idInt },
       data: {
         ...(nom && { nom }),
         ...(logoPath && { logo: logoPath }),
@@ -136,14 +132,12 @@ export async function PUT(
 }
 
 // DELETE - Supprimer une catégorie
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest) {
   try {
-    const id = parseInt(params.id, 10);
+    const id = request.nextUrl.pathname.split("/").pop();
+    const idInt = Number.parseInt(id || "");
 
-    if (isNaN(id)) {
+    if (isNaN(idInt)) {
       return NextResponse.json(
         { error: 'ID invalide' },
         { status: 400 }
@@ -152,7 +146,7 @@ export async function DELETE(
 
     // Récupérer la catégorie pour obtenir le chemin du logo
     const categorie = await prisma.categorie.findUnique({
-      where: { id }
+      where: { id: idInt }
     }) as Categorie | null;
 
     if (!categorie) {
@@ -174,7 +168,7 @@ export async function DELETE(
 
     // Supprimer la catégorie
     await prisma.categorie.delete({
-      where: { id }
+      where: { id: idInt }
     });
 
     return NextResponse.json({
