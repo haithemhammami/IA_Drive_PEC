@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import prisma from "lib/prisma"
 import { writeFile, unlink, mkdir } from "fs/promises"
 import { join } from "path"
@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const id = Number.parseInt(url.pathname.split("/").pop() || "", 10);
 
     if (isNaN(id)) {
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
       return NextResponse.json({ error: "ID invalide" }, { status: 400 });
     }
 
@@ -39,6 +40,7 @@ export async function PUT(request: Request) {
     const id = Number.parseInt(url.pathname.split("/").pop() || "", 10);
 
     if (isNaN(id)) {
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
       return NextResponse.json({ error: "ID invalide" }, { status: 400 });
     }
 
@@ -206,6 +208,7 @@ export async function DELETE(request: Request) {
     const id = Number.parseInt(url.pathname.split("/").pop() || "", 10);
 
     if (isNaN(id)) {
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
       return NextResponse.json({ error: "ID invalide" }, { status: 400 });
     }
 

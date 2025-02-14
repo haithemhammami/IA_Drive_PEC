@@ -251,7 +251,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               alt="YumiMind"
               priority
               className="dark:hidden"
-              style={{ width: "auto", height: "auto" }}
+              //style={{ width: "auto", height: "auto" }}
             />
             <Image
               width={176}

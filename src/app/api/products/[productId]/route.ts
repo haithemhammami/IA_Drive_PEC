@@ -8,6 +8,7 @@ export async function GET(request: Request) {
 
   if (isNaN(productIdInt)) {
     return NextResponse.json({ message: "ID produit invalide" }, { status: 400 });
+    return NextResponse.json({ message: "ID produit invalide" }, { status: 400 });
   }
 
   try {
@@ -17,6 +18,7 @@ export async function GET(request: Request) {
     });
 
     if (!product) {
+      return NextResponse.json({ message: "Produit non trouvé" }, { status: 404 });
       return NextResponse.json({ message: "Produit non trouvé" }, { status: 404 });
     }
 
