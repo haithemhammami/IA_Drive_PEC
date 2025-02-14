@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma" 
+import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
 
@@ -8,10 +8,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 });
 
 export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } =  await context.params;  // Extraire l'ID utilisateur des paramètres
+  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
 
   // Convertir l'ID utilisateur en entier
-  const utilisateurIdInt = parseInt(utilisateurId);
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
   }
@@ -77,11 +76,10 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
 }
 
 export async function DELETE(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = await context.params;
+  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
   const { productId, removeAll } = await req.json();
 
   // Convertir l'ID utilisateur et produit en entier
-  const utilisateurIdInt = parseInt(utilisateurId);
   const productIdInt = parseInt(productId);
 
   // Vérification si les ID sont valides
@@ -147,10 +145,9 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
 }
 
 export async function POST(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = context.params;
+  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
 
   // Convertir l'ID utilisateur en entier
-  const utilisateurIdInt = parseInt(utilisateurId);
 
   // Vérification si l'ID utilisateur est valide
   if (isNaN(utilisateurIdInt)) {
