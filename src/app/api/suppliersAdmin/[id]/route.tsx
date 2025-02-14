@@ -1,15 +1,16 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "lib/prisma"
 import { writeFile, unlink, mkdir } from "fs/promises"
 import { join } from "path"
 import type { Supplier } from "@prisma/client"
 
 // GET - Récupérer un fournisseur par ID
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
-  const id = Number.parseInt(context.params.id, 10)
+export async function GET(request: NextRequest) {
+  const pathSegments = request.nextUrl.pathname.split("/");
+  const id = Number.parseInt(pathSegments[pathSegments.length - 1], 10); // Récupère le dernier segment comme ID
 
   if (isNaN(id)) {
-    return NextResponse.json({ error: "ID invalide" }, { status: 400 })
+    return NextResponse.json({ error: "ID invalide" }, { status: 400 });
   }
 
   try {
@@ -29,11 +30,12 @@ export async function GET(request: NextRequest, context: { params: { id: string 
 }
 
 // PUT - Mettre à jour un fournisseur
-export async function PUT(request: NextRequest, context: { params: { id: string } }) {
-  const id = Number(context.params.id)
+export async function PUT(request: NextRequest) {
+  const pathSegments = request.nextUrl.pathname.split("/");
+  const id = Number.parseInt(pathSegments[pathSegments.length - 1], 10);
 
   if (isNaN(id)) {
-    return NextResponse.json({ error: "ID invalide" }, { status: 400 })
+    return NextResponse.json({ error: "ID invalide" }, { status: 400 });
   }
 
   try {
@@ -106,12 +108,9 @@ export async function PUT(request: NextRequest, context: { params: { id: string 
 }
 
 // DELETE - Supprimer un fournisseur
-export async function DELETE(request: NextRequest, context: { params: { id: string } }) {
-  const id = Number.parseInt(context.params.id, 10)
-
-  if (isNaN(id)) {
-    return NextResponse.json({ error: "ID invalide" }, { status: 400 })
-  }
+export async function DELETE(request: NextRequest) {
+  const pathSegments = request.nextUrl.pathname.split("/");
+  const id = Number.parseInt(pathSegments[pathSegments.length - 1], 10);
 
   try {
     const supplier: Supplier | null = await prisma.supplier.findUnique({

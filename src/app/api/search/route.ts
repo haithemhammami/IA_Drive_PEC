@@ -1,18 +1,21 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getProductsByQuery } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
-  // Extract the 'query' parameter from the request URL
-  const { searchParams } = new URL(request.url);
-  const query = searchParams.get("query") || "";
-
   try {
-    // Fetch products from the database that match the 'query' parameter
+    // Récupération du paramètre 'query' dans l'URL
+    const query = request.nextUrl.searchParams.get("query")?.trim() || "";
+
+    if (!query) {
+      return NextResponse.json({ error: "Le paramètre 'query' est requis" }, { status: 400 });
+    }
+
+    // Récupération des produits en fonction de la requête
     const products = await getProductsByQuery(query);
-    return NextResponse.json(products); // Return the fetched products as a JSON response
+
+    return NextResponse.json(products);
   } catch (error) {
-    console.error("Error fetching products:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Erreur lors de la récupération des produits:", error);
+    return NextResponse.json({ error: "Erreur interne du serveur" }, { status: 500 });
   }
 }
-

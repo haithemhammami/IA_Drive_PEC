@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server"
 import prisma from "lib/prisma"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request) {
   try {
-    const userId = Number.parseInt(params.id, 10)
+    const url = new URL(request.url)
+    const pathSegments = url.pathname.split("/")
+    const userId = Number.parseInt(pathSegments[pathSegments.length - 1], 10)
 
     if (isNaN(userId)) {
       return NextResponse.json({ error: "Invalid user ID" }, { status: 400 })
@@ -31,4 +33,3 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
-

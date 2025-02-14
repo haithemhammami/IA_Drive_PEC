@@ -1,16 +1,16 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import prisma from "lib/prisma"
 import { writeFile, unlink, mkdir } from "fs/promises"
 import { join } from "path"
 import type { Produit } from "@prisma/client"
 
 // GET - Récupérer un produit par ID
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest) {
   try {
-    const id = Number.parseInt(params.id, 10)
+    const id = Number.parseInt(request.nextUrl.pathname.split("/").pop() || "", 10);
 
     if (isNaN(id)) {
-      return NextResponse.json({ error: "ID invalide" }, { status: 400 })
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
     }
 
     const produit = await prisma.produit.findUnique({
@@ -32,12 +32,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // PUT - Mettre à jour un produit
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest) {
   try {
-    const id = Number.parseInt(await params.id, 10)
+    const id = Number.parseInt(request.nextUrl.pathname.split("/").pop() || "", 10);
 
     if (isNaN(id)) {
-      return NextResponse.json({ error: "ID invalide" }, { status: 400 })
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
     }
 
     const formData = await request.formData()
@@ -198,12 +198,12 @@ async function checkStockLevels(productId: number, newStock: number) {
 }
 
 // DELETE - Supprimer un produit
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest) {
   try {
-    const id = Number.parseInt(params.id, 10)
+    const id = Number.parseInt(request.nextUrl.pathname.split("/").pop() || "", 10);
 
     if (isNaN(id)) {
-      return NextResponse.json({ error: "ID invalide" }, { status: 400 })
+      return NextResponse.json({ error: "ID invalide" }, { status: 400 });
     }
 
     // Récupérer le produit pour obtenir le chemin de l'image
