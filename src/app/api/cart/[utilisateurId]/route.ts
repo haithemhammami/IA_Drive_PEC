@@ -7,8 +7,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-01-27.acacia",
 });
 
-export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
+export async function GET(req: Request, context: { params: { utilisateurId: number } }) {
+  const utilisateurIdInt = context.params.utilisateurId;  // Utiliser l'ID utilisateur directement en entier
 
   // Convertir l'ID utilisateur en entier
   if (isNaN(utilisateurIdInt)) {
@@ -75,8 +75,8 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
   }
 }
 
-export async function DELETE(req: Request, context: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
+export async function DELETE(req: Request, context: { params: { utilisateurId: number } }) {
+  const utilisateurIdInt = context.params.utilisateurId;  // Utiliser l'ID utilisateur directement en entier
   const { productId, removeAll } = await req.json();
 
   // Convertir l'ID utilisateur et produit en entier
@@ -144,8 +144,8 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
   }
 }
 
-export async function POST(req: Request, context: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
+export async function POST(req: Request, context: { params: { utilisateurId: number } }) {
+  const utilisateurIdInt = context.params.utilisateurId;  // Utiliser l'ID utilisateur directement en entier
 
   // Convertir l'ID utilisateur en entier
 
