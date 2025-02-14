@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
+
+// GET - Récupérer un produit par ID
 export default async function ProductPage({ params }: { params: { productId: string } }) {
   const product = await prisma.produit.findUnique({
     where: { id: parseInt(params.productId) },
