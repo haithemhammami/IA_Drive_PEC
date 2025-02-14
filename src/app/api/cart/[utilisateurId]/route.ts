@@ -7,18 +7,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-01-27.acacia",
 });
 
-// Type minimal requis par Next.js pour les paramètres de route
-export type RouteParams = {
-  params: {
-    utilisateurId: string
-  }
+type ContextType = {
+  params: { utilisateurId: string }
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const utilisateurIdInt = parseInt(params.utilisateurId);
+export async function GET(request: NextRequest, context: ContextType) {
+  const utilisateurIdInt = parseInt(context.params.utilisateurId);
 
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
@@ -82,11 +76,8 @@ export async function GET(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const utilisateurIdInt = parseInt(params.utilisateurId);
+export async function DELETE(request: NextRequest, context: ContextType) {
+  const utilisateurIdInt = parseInt(context.params.utilisateurId);
   const { productId, removeAll } = await request.json();
   const productIdInt = parseInt(productId);
 
@@ -146,11 +137,8 @@ export async function DELETE(
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
-  const utilisateurIdInt = parseInt(params.utilisateurId);
+export async function POST(request: NextRequest, context: ContextType) {
+  const utilisateurIdInt = parseInt(context.params.utilisateurId);
 
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
