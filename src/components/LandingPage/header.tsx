@@ -60,13 +60,13 @@ export function Header() {
         <div className="flex items-center space-x-4">
           <Link href="/" className="text-2xl font-bold">
             <Image
-              width={144}
+              width={176}
               height={32}
               src="/images/logo.svg"
               alt="YumiMind"
               priority
               className="dark:hidden"
-              style={{ width: "auto", height: "auto" }}
+              //style={{ width: "auto", height: "auto" }}
             />
             <Image
               width={144}
@@ -75,7 +75,7 @@ export function Header() {
               alt="YumiMind"
               priority
               className="hidden dark:block"
-              style={{ width: "auto", height: "auto" }}
+              //style={{ width: "auto", height: "auto" }}
             />
           </Link>
           <nav className="hidden md:flex space-x-4">

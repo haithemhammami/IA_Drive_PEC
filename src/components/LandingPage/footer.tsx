@@ -16,7 +16,7 @@ export function Footer() {
                 alt="YumiMind"
                 priority
                 className="dark:hidden"
-                style={{ width: "auto", height: "auto" }}
+                //style={{ width: "auto", height: "auto" }}
               />
               <Image
                 width={176}
@@ -25,7 +25,7 @@ export function Footer() {
                 alt="YumiMind"
                 priority
                 className="hidden dark:block"
-                style={{ width: "auto", height: "auto" }}
+                //style={{ width: "auto", height: "auto" }}
               />
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300 max-w-md">
