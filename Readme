@@ -1,0 +1,65 @@
+# Fonctionnalités Principales
+
+## Gestion des Produits
+
+- Affichage des détails d'un produit spécifique (`/products/[productId]/page.tsx`)
+- Affichage de la liste des produits (`/products/page.tsx`)
+
+## Gestion du Panier
+
+- Ajout, mise à jour et suppression des articles dans le panier (`/api/cart/[utilisateurId]/route.ts`)
+
+## Authentification et Autorisation
+
+- Gestion des utilisateurs et des sessions (`/api/auth`)
+- Routes protégées nécessitant une authentification (`/api/protected`)
+
+## Gestion des Commandes
+
+- Création et gestion des commandes (`/api/orders`, `/api/ordersAdmin`)
+- Affichage des détails d'une commande spécifique (`/orders/[orderId]/page.tsx`)
+- Gestion des commandes par l'utilisateur (`/orders/user`)
+
+## Paiement
+
+- Processus de paiement et confirmation (`/api/checkout`, `/api/payment-confirm`)
+- Page de succès après paiement (`/success/page.tsx`)
+
+## Recherche et Analyse
+
+- Fonctionnalité de recherche de produits (`/api/search`)
+- Analyse d'images et génération de recettes (`/api/analyze-image`, `/api/generate-recipes`)
+
+## Gestion des Catégories et Fournisseurs
+
+- Gestion des catégories de produits (`/api/categories`, `/api/categoriesAdmin`)
+- Gestion des fournisseurs (`/api/suppliersAdmin`)
+
+## Chat et Alertes
+
+- Fonctionnalité de chat (`/api/chat`)
+- Gestion des alertes (`/api/alerts`)
+
+# Autres Fonctionnalités
+
+- **Gestion des Avis**
+  - Ajout et affichage des avis sur les produits (`/api/reviews`)
+
+- **Gestion des Polices et Styles**
+  - Polices personnalisées (`/fonts`)
+  - Styles globaux (`/globals.css`)
+
+- **Composants Réutilisables**
+  - Composants réutilisables pour l'interface utilisateur (`/components`)
+
+- **Hooks Personnalisés**
+  - Hooks personnalisés pour la logique réutilisable (`/hooks`)
+
+- **Images et Assets**
+  - Gestion des images et autres assets (`/images`)
+
+- **Middleware**
+  - Middleware pour la gestion des requêtes (`/middleware`)
+
+- **Types et Interfaces**
+  - Définitions de types et interfaces TypeScript (`/types`)

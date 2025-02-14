@@ -1,11 +1,11 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 export default function SuccessPage() {
-  const searchParams = useSearchParams();
-  const sessionId = searchParams ? searchParams.get("session_id") : null;
+  const router = useRouter();
+  const { session_id: sessionId } = router.query;
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -20,7 +20,6 @@ export default function SuccessPage() {
         if (!res.ok) throw new Error(data.message);
         setMessage("Paiement réussi ! 🎉");
       } catch (err: unknown) {
-        console.error(err); // Log the error
         setMessage("Erreur de confirmation du paiement.");
       } finally {
         setLoading(false);
