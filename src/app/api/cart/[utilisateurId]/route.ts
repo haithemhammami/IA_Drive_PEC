@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
@@ -7,16 +7,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-01-27.acacia",
 });
 
-export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
+// Type minimal requis par Next.js pour les paramètres de route
+export type RouteParams = {
+  params: {
+    utilisateurId: string
+  }
+}
 
-  // Convertir l'ID utilisateur en entier
+export async function GET(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  const utilisateurIdInt = parseInt(params.utilisateurId);
+
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
   }
 
   // Récupérer le token JWT de l'utilisateur connecté
-  const token = req.headers.get('Authorization')?.split(' ')[1];
+  const token = request.headers.get('Authorization')?.split(' ')[1];
   if (!token) {
     return NextResponse.json({ message: "Non authentifié" }, { status: 401 });
   }
@@ -41,7 +50,7 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
   }
 
   try {
-    // Récupérer l'utilisateur
+    // Utiliser les types Prisma pour les requêtes de base de données
     const user = await prisma.utilisateur.findUnique({
       where: { id: utilisateurIdInt },
       select: { nom: true },
@@ -51,13 +60,12 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
       return NextResponse.json({ message: "Utilisateur non trouvé" }, { status: 404 });
     }
 
-    // Récupérer tous les éléments du panier pour cet utilisateur
     const cartItems = await prisma.cart.findMany({
       where: {
-        utilisateurId: utilisateurIdInt,  // Filtrer les éléments du panier pour l'utilisateur donné
+        utilisateurId: utilisateurIdInt,
       },
       include: {
-        produit: true,  // Inclure les informations du produit lié à chaque élément du panier
+        produit: true,
       },
     });
 
@@ -65,35 +73,32 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
       return NextResponse.json({ message: "Aucun produit dans le panier." }, { status: 404 });
     }
 
-    // Calculer le montant total du panier
-    const totalAmount = cartItems.reduce((total: number, item: { prix: number; quantite: number }) => total + item.prix * item.quantite, 0);
+    const totalAmount = cartItems.reduce((total, item) => total + item.prix * item.quantite, 0);
 
-    return NextResponse.json({ cartItems, userName: user.nom, totalAmount }, { status: 200 });  // Retourner les éléments du panier avec les produits, le nom de l'utilisateur et le montant total
+    return NextResponse.json({ cartItems, userName: user.nom, totalAmount }, { status: 200 });
   } catch (error: unknown) {
     console.error("Erreur lors de la récupération du panier:", (error as Error).message);
     return NextResponse.json({ message: "Erreur lors de la récupération du panier" }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request, context: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Convertir l'ID utilisateur en entier
-  const { productId, removeAll } = await req.json();
-
-  // Convertir l'ID utilisateur et produit en entier
+export async function DELETE(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  const utilisateurIdInt = parseInt(params.utilisateurId);
+  const { productId, removeAll } = await request.json();
   const productIdInt = parseInt(productId);
 
-  // Vérification si les ID sont valides
   if (isNaN(utilisateurIdInt) || isNaN(productIdInt)) {
     return NextResponse.json({ message: "ID utilisateur ou produit invalide" }, { status: 400 });
   }
 
-  // Récupérer le token JWT de l'utilisateur connecté
-  const token = req.headers.get('Authorization')?.split(' ')[1];
+  const token = request.headers.get('Authorization')?.split(' ')[1];
   if (!token) {
     return NextResponse.json({ message: "Non authentifié" }, { status: 401 });
   }
 
-  // Vérifier le token JWT
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
@@ -107,7 +112,6 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
   }
 
-  // Vérifier si l'utilisateur connecté est le propriétaire du panier
   if (decoded.userId !== utilisateurIdInt) {
     return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 });
   }
@@ -125,12 +129,10 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
     }
 
     if (removeAll || cartItem.quantite === 1) {
-      // Supprimer l'élément du panier
       await prisma.cart.delete({
         where: { id: cartItem.id },
       });
     } else {
-      // Décrémenter la quantité
       await prisma.cart.update({
         where: { id: cartItem.id },
         data: { quantite: cartItem.quantite - 1 },
@@ -144,23 +146,21 @@ export async function DELETE(req: Request, context: { params: { utilisateurId: s
   }
 }
 
-export async function POST(req: Request, context: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = parseInt(context.params.utilisateurId);  // Utiliser l'ID utilisateur directement en entier
+export async function POST(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  const utilisateurIdInt = parseInt(params.utilisateurId);
 
-  // Convertir l'ID utilisateur en entier
-
-  // Vérification si l'ID utilisateur est valide
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
   }
 
-  // Récupérer le token JWT de l'utilisateur connecté
-  const token = req.headers.get('Authorization')?.split(' ')[1];
+  const token = request.headers.get('Authorization')?.split(' ')[1];
   if (!token) {
     return NextResponse.json({ message: "Non authentifié" }, { status: 401 });
   }
 
-  // Vérifier le token JWT
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
@@ -174,19 +174,17 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
     return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
   }
 
-  // Vérifier si l'utilisateur connecté est le propriétaire du panier
   if (decoded.userId !== utilisateurIdInt) {
     return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 });
   }
 
   try {
-    // Récupérer tous les éléments du panier pour cet utilisateur
     const cartItems = await prisma.cart.findMany({
       where: {
-        utilisateurId: utilisateurIdInt,  // Filtrer les éléments du panier pour l'utilisateur donné
+        utilisateurId: utilisateurIdInt,
       },
       include: {
-        produit: true,  // Inclure les informations du produit lié à chaque élément du panier
+        produit: true,
       },
     });
 
@@ -194,30 +192,26 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
       return NextResponse.json({ message: "Aucun produit dans le panier." }, { status: 404 });
     }
 
-    // Calculer le montant total du panier
-    const totalAmount = cartItems.reduce((total: number, item: { prix: number; quantite: number }) => total + item.prix * item.quantite, 0);
+    const totalAmount = cartItems.reduce((total, item) => total + item.prix * item.quantite, 0);
 
-    // Vérifier si le statut par défaut existe
     let defaultStatus = await prisma.commandeStatut.findFirst({
       where: { statut: "En attente de paiement" },
     });
 
-    // Créer le statut par défaut s'il n'existe pas
     if (!defaultStatus) {
       defaultStatus = await prisma.commandeStatut.create({
         data: { statut: "En attente de paiement" },
       });
     }
 
-    // Créer une nouvelle commande
     const newOrder = await prisma.commande.create({
       data: {
         clientId: utilisateurIdInt,
-        statutId: defaultStatus.id, // Utiliser l'ID du statut par défaut
+        statutId: defaultStatus.id,
         total: totalAmount,
-        createdAt: new Date(), 
+        createdAt: new Date(),
         commandeDetails: {
-          create: cartItems.map((item: { produitId: number; quantite: number; prix: number }) => ({
+          create: cartItems.map(item => ({
             produitId: item.produitId,
             quantite: item.quantite,
             prixUnitaire: item.prix,
@@ -226,12 +220,11 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
       },
     });
 
-    // Créer une session Stripe Checkout
-    const lineItems = cartItems.map((item: { produit: { nom: string }; prix: number; quantite: number }) => ({
+    const lineItems = cartItems.map(item => ({
       price_data: {
         currency: "eur",
         product_data: { name: item.produit.nom },
-        unit_amount: item.prix * 100, // Prix en centimes
+        unit_amount: Math.round(item.prix * 100),
       },
       quantity: item.quantite,
     }));
@@ -248,7 +241,11 @@ export async function POST(req: Request, context: { params: { utilisateurId: str
       },
     });
 
-    return NextResponse.json({ message: "Commande créée avec succès.", order: newOrder, url: session.url }, { status: 201 });
+    return NextResponse.json({ 
+      message: "Commande créée avec succès.", 
+      order: newOrder, 
+      url: session.url 
+    }, { status: 201 });
   } catch (error: unknown) {
     console.error("Erreur lors de la création de la commande:", (error as Error).message);
     return NextResponse.json({ message: "Erreur lors de la création de la commande" }, { status: 500 });
