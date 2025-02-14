@@ -7,8 +7,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-01-27.acacia",
 })
 
-export async function GET(request: NextRequest, { params }: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = Number.parseInt(params.utilisateurId)
+export async function GET(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop()
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
 
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 })
@@ -72,8 +73,9 @@ export async function GET(request: NextRequest, { params }: { params: { utilisat
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = Number.parseInt(params.utilisateurId)
+export async function DELETE(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop()
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
   const { productId, removeAll } = await request.json()
   const productIdInt = Number.parseInt(productId)
 
@@ -133,8 +135,9 @@ export async function DELETE(request: NextRequest, { params }: { params: { utili
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { utilisateurId: string } }) {
-  const utilisateurIdInt = Number.parseInt(params.utilisateurId)
+export async function POST(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop()
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
 
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 })
