@@ -6,8 +6,8 @@ import { ChevronUp, ChevronDown } from "lucide-react"
 
 const faqs = [
   {
-    question: "IA_Drive est-il totalement gratuit ?",
-    answer: "Oui, IA_Drive est totalement gratuit à utiliser.",
+    question: "YumiMind est-il totalement gratuit ?",
+    answer: "Oui, YumiMind est totalement gratuit à utiliser.",
   },
   {
     question: "Puis-je l'utiliser pour un usage commercial ?",

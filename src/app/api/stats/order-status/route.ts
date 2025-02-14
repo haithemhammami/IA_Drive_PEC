@@ -12,6 +12,9 @@ export async function GET(request: Request) {
     startDate.setMonth(startDate.getMonth() - 1)
   }
 
+  // Logging de la date de début
+  console.log('Date de début:', startDate);
+
   try {
     const orderStatuses = await prisma.commande.groupBy({
       by: ["statutId"],
@@ -24,6 +27,9 @@ export async function GET(request: Request) {
         },
       },
     })
+
+    // Logging des statuts des commandes
+    console.log('Statuts des commandes:', orderStatuses);
 
     const statusMap = {
       1: "En attente de paiement",

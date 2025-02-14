@@ -13,7 +13,13 @@ export async function POST(req: Request) {
         return NextResponse.json({ message: "Panier vide." }, { status: 400 });
       }
   
-      const lineItems = cartItems.map((item: any) => ({
+      interface CartItem {
+        nom: string;
+        prix: number;
+        quantite: number;
+      }
+      
+      const lineItems = cartItems.map((item: CartItem) => ({
         price_data: {
           currency: "eur",
           product_data: { name: item.nom },
@@ -21,6 +27,7 @@ export async function POST(req: Request) {
         },
         quantity: item.quantite,
       }));
+      
   
       // Création de la session Stripe Checkout
       const session = await stripe.checkout.sessions.create({
@@ -32,8 +39,8 @@ export async function POST(req: Request) {
       });
   
       return NextResponse.json({ url: session.url });
-    } catch (error: any) {
-      console.error("Erreur Stripe:", error.message);
+    } catch (error: unknown) {
+      console.error("Erreur Stripe:", error instanceof Error ? error.message : 'Erreur inconnue');
       return NextResponse.json({ message: "Erreur lors du paiement." }, { status: 500 });
     }
 }

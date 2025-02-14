@@ -1,65 +1,65 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface User {
-  id: number
-  nom: string
-  email: string
-  phone: string | null
-  adresse: string | null
-  isActive: boolean
-  dateCreation: string
-  role: string
-  derniereCommandeId: number | null
+  id: number;
+  nom: string;
+  email: string;
+  phone: string | null;
+  adresse: string | null;
+  isActive: boolean;
+  dateCreation: string;
+  role: string;
+  derniereCommandeId: number | null;
 }
 
 const TableOne = () => {
-  const [users, setUsers] = useState<User[]>([])
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
-  const [total, setTotal] = useState(0)
-  const [search, setSearch] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [users, setUsers] = useState<User[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/usersAdmin?page=${page}&limit=${limit}&search=${search}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch users");
+      }
+      const data = await response.json();
+      setUsers(data.users);
+      setTotal(data.total);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [page, limit, search]);
 
   useEffect(() => {
-    fetchUsers()
-  }, [page, search])
-
-  const fetchUsers = async () => {
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/usersAdmin?page=${page}&limit=${limit}&search=${search}`)
-      if (!response.ok) {
-        throw new Error("Failed to fetch users")
-      }
-      const data = await response.json()
-      setUsers(data.users)
-      setTotal(data.total)
-    } catch (error) {
-      console.error("Error fetching users:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    fetchUsers();
+  }, [page, search, fetchUsers]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value)
-    setPage(1)
-  }
+    setSearch(e.target.value);
+    setPage(1);
+  };
 
   const handlePrevPage = () => {
     if (page > 1) {
-      setPage(page - 1)
+      setPage(page - 1);
     }
-  }
+  };
 
   const handleNextPage = () => {
     if (page < Math.ceil(total / limit)) {
-      setPage(page + 1)
+      setPage(page + 1);
     }
-  }
+  };
 
   return (
     <div className="rounded-[10px] bg-white px-4 pb-4 pt-6 shadow-1 dark:bg-gray-dark dark:shadow-card sm:px-7.5 sm:pt-7.5">
@@ -166,8 +166,7 @@ const TableOne = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TableOne
-
+export default TableOne;

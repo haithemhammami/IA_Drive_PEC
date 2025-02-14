@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import ClickOutside from "@/components/LandingPage/ClickOutside";
+import ClickOutside from "@/components/ClickOutside";
 
-const DefaultSelectOption = ({ options }: any) => {
+interface DefaultSelectOptionProps {
+  options: string[];
+}
+
+const DefaultSelectOption = ({ options }: DefaultSelectOptionProps) => {
   const [selectedOption, setSelectedOption] = useState(options[0]);
   const [isOpen, setIsOpen] = useState(false);
 

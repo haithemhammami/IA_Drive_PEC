@@ -4,6 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Image from 'next/image'
 
 export function TutorialVideo() {
   const [isPlaying, setIsPlaying] = useState(false)
@@ -41,13 +42,13 @@ export function TutorialVideo() {
             <iframe
               className="aspect-video w-full"
               src="https://www.youtube.com/embed/N0ADpGqGhY8?autoplay=1"
-              title="Tutoriel IA_Drive"
+              title="Tutoriel YumiMind"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
           ) : (
-            <img
+            <Image
               src={`https://img.youtube.com/vi/N0ADpGqGhY8/maxresdefault.jpg`}
               alt="Miniature de la vidéo tutorielle"
               className="aspect-video w-full object-cover"

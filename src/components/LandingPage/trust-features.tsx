@@ -37,7 +37,7 @@ export function TrustFeatures() {
           <div className="w-full lg:w-1/2">
             <Image
               src="/benefit-one.png"
-              alt="IA_Drive in action"
+              alt="YumiMind in action"
               width={200}
               height={100}
               className="rounded-xl shadow-lg ring-1 ring-gray-400/10 dark:ring-gray-700/10 w-full h-auto object-cover transition-all duration-300 hover:shadow-xl hover:ring-primary/50 sm:max-w-sm lg:max-w-md mx-auto"
@@ -45,7 +45,7 @@ export function TrustFeatures() {
           </div>
           <div className="w-full lg:w-1/2">
             <h2 className="text-3xl font-bold text-center lg:text-left mb-8">
-              Pourquoi choisir IA_Drive ?
+              Pourquoi choisir YumiMind ?
             </h2>
             <ul className="space-y-6">
               {features.map((feature, index) => (

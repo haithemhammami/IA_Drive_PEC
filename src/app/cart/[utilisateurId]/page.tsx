@@ -113,36 +113,53 @@ const UserCartPage = () => {
   }, [cartItems]);
 
   if (loading) {
-    return <p>Chargement...</p>;
+    return <p className="text-center text-gray-500">Chargement...</p>;
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return <p className="text-center text-red-500">{error}</p>;
   }
 
   return (
-    <div>
-      <h1>Panier de {userName}</h1>
+    <div className="container mx-auto p-6 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-center">Panier de {userName}</h1>
       {cartItems.length === 0 ? (
-        <p>Aucun produit dans le panier.</p>
+        <p className="text-center text-gray-500">Aucun produit dans le panier.</p>
       ) : (
-        <div>
-          <ul>
+        <div className="p-6  bg-gray-100 rounded-lg shadow-lg">
+          <ul className="space-y-6 ">
             {cartItems.map((item) => (
-              <li key={item.id}>
-                <div>
-                  <img src={item.image} alt={item.produit.nom} width="100" />
-                  <h3>{item.produit.nom}</h3>
-                  <p>Quantité : {item.quantite}</p>
-                  <p>Prix : {item.prix}€</p>
-                  <button onClick={() => handleRemoveItem(item.produitId)}>Diminuer la quantité</button>
-                  <button onClick={() => handleRemoveItem(item.produitId, true)}>Supprimer</button>
+              <li key={item.id} className="bg-white flex items-center space-x-6 p-4 border-b last:border-b-0 m-2">
+                <img src={item.image} alt={item.produit.nom} className="w-24 h-24 object-cover rounded-lg" />
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold">{item.produit.nom}</h3>
+                  <p className="text-gray-600">Quantité : {item.quantite}</p>
+                  <p className="text-gray-600">Prix : {item.prix}€</p>
+                </div>
+                <div className="flex space-x-3">
+                  <button 
+                    onClick={() => handleRemoveItem(item.produitId)} 
+                    className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                  >
+                    Diminuer
+                  </button>
+                  <button 
+                    onClick={() => handleRemoveItem(item.produitId, true)} 
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                  >
+                    Supprimer
+                  </button>
                 </div>
               </li>
             ))}
           </ul>
-          <h2>Total du panier : {totalAmount}€</h2>
-          <button onClick={handleCheckout}>Valider le panier et passer commande</button>
+          <h2 className="text-2xl font-bold mt-8">Total du panier : {totalAmount}€</h2>
+          <button 
+            onClick={handleCheckout} 
+            className="mt-6 w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          >
+            Valider le panier et passer commande
+          </button>
         </div>
       )}
     </div>

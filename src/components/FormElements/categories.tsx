@@ -1,202 +1,182 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb"
-import SelectCategories from "@/components/FormElements/SelectGroup/SelectCategorie"
-import DeletCategorie from "@/components/Popups/DeletCategorie"
-import ModifyCategorie from "@/components/Popups/ModifyCategorie"
+import type React from "react";
+import { useState, useEffect, useCallback } from "react";
+import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import SelectCategories from "@/components/FormElements/SelectGroup/SelectCategorie";
+import DeletCategorie from "@/components/Popups/DeletCategorie";
+import ModifyCategorie from "@/components/Popups/ModifyCategorie";
 
 // Define TypeScript interfaces for our data structures and components
 interface Category {
-  id: number
-  nom: string
-  logo?: string
-}
-
-// Interface for SelectCategories component props
-interface SelectCategoriesProps {
-  selectedCategory?: Category | null
-  onCategoryChange: (category: Category) => void
-}
-
-// Interface for ModifyCategorie component props
-interface ModifyCategorieProps {
-  onClose: () => void
-  onConfirm: () => Promise<void>
-  isLoading: boolean
-}
-
-// Interface for DeletCategorie component props
-interface DeleteCategorieProps {
-  onClose: () => void
-  onConfirm: () => Promise<void>
-  isLoading: boolean
+  id: number;
+  nom: string;
+  logo?: string;
 }
 
 const FormElements = () => {
   // State for managing categories and form data
-  const [categories, setCategories] = useState<Category[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [statusMessage, setStatusMessage] = useState<{ type: "error" | "success"; message: string } | null>(null)
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: "error" | "success"; message: string } | null>(null);
 
   // State for managing popups
-  const [isModifyPopupOpen, setModifyPopupOpen] = useState(false)
-  const [isDeletePopupOpen, setDeletePopupOpen] = useState(false)
+  const [isModifyPopupOpen, setModifyPopupOpen] = useState(false);
+  const [isDeletePopupOpen, setDeletePopupOpen] = useState(false);
 
   // State for form inputs
-  const [newCategoryName, setNewCategoryName] = useState("")
-  const [newCategoryLogo, setNewCategoryLogo] = useState<File | null>(null)
-  const [modifiedCategoryName, setModifiedCategoryName] = useState("")
-  const [modifiedCategoryLogo, setModifiedCategoryLogo] = useState<File | null>(null)
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryLogo, setNewCategoryLogo] = useState<File | null>(null);
+  const [modifiedCategoryName, setModifiedCategoryName] = useState("");
+  const [modifiedCategoryLogo, setModifiedCategoryLogo] = useState<File | null>(null);
+
+  // Function to fetch all categories
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await fetch("/api/categoriesAdmin");
+      if (!response.ok) throw new Error("Erreur lors de la récupération des catégories");
+      const data = await response.json();
+      setCategories(data);
+    } catch (err) {
+      setErrorMessage("Impossible de charger les catégories");
+      console.error("Error fetching categories:", err);
+    }
+  }, []);
 
   // Fetch categories on component mount
   useEffect(() => {
-    fetchCategories()
-  }, [])
-
-  // Function to fetch all categories
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch("/api/categoriesAdmin")
-      if (!response.ok) throw new Error("Erreur lors de la récupération des catégories")
-      const data = await response.json()
-      setCategories(data)
-    } catch (err) {
-      setErrorMessage("Impossible de charger les catégories")
-      console.error("Error fetching categories:", err)
-    }
-  }
+    fetchCategories();
+  }, [fetchCategories]);
 
   // Function to handle category selection
   const handleCategoryChange = (category: Category) => {
-    setSelectedCategory(category)
-    setModifiedCategoryName(category.nom)
-  }
+    setSelectedCategory(category);
+    setModifiedCategoryName(category.nom);
+  };
 
   // Function to set error message
   const setErrorMessage = (message: string) => {
-    setStatusMessage({ type: "error", message })
-    setTimeout(() => setStatusMessage(null), 10000) // Clear message after 10 seconds
-  }
+    setStatusMessage({ type: "error", message });
+    setTimeout(() => setStatusMessage(null), 10000); // Clear message after 10 seconds
+  };
 
   // Function to set success message
   const setSuccessMessage = (message: string) => {
-    setStatusMessage({ type: "success", message })
-    setTimeout(() => setStatusMessage(null), 10000) // Clear message after 10 seconds
-  }
+    setStatusMessage({ type: "success", message });
+    setTimeout(() => setStatusMessage(null), 10000); // Clear message after 10 seconds
+  };
 
   // Function to add a new category
   const handleAddCategory = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setStatusMessage(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setStatusMessage(null);
 
     try {
       if (!newCategoryName.trim()) {
-        throw new Error("Le nom de la catégorie est requis")
+        throw new Error("Le nom de la catégorie est requis");
       }
 
-      const formData = new FormData()
-      formData.append("nom", newCategoryName)
+      const formData = new FormData();
+      formData.append("nom", newCategoryName);
       if (newCategoryLogo) {
-        formData.append("logo", newCategoryLogo)
+        formData.append("logo", newCategoryLogo);
       }
 
       const response = await fetch("/api/categoriesAdmin", {
         method: "POST",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Erreur lors de l'ajout de la catégorie")
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de l'ajout de la catégorie");
       }
 
-      setSuccessMessage("Catégorie ajoutée avec succès !")
-      setNewCategoryName("")
-      setNewCategoryLogo(null)
-      await fetchCategories()
+      setSuccessMessage("Catégorie ajoutée avec succès !");
+      setNewCategoryName("");
+      setNewCategoryLogo(null);
+      await fetchCategories();
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Une erreur est survenue")
+      setErrorMessage(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Function to modify a category
   const handleModifyCategory = async () => {
     if (!selectedCategory) {
-      setErrorMessage("Veuillez sélectionner une catégorie")
-      return
+      setErrorMessage("Veuillez sélectionner une catégorie");
+      return;
     }
 
-    setIsLoading(true)
-    setStatusMessage(null)
+    setIsLoading(true);
+    setStatusMessage(null);
 
     try {
-      const formData = new FormData()
-      formData.append("nom", modifiedCategoryName || selectedCategory.nom)
+      const formData = new FormData();
+      formData.append("nom", modifiedCategoryName || selectedCategory.nom);
       if (modifiedCategoryLogo) {
-        formData.append("logo", modifiedCategoryLogo)
+        formData.append("logo", modifiedCategoryLogo);
       }
 
       const response = await fetch(`/api/categoriesAdmin/${selectedCategory.id}`, {
         method: "PUT",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Erreur lors de la modification")
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de la modification");
       }
 
-      setSuccessMessage("Catégorie modifiée avec succès !")
-      setModifyPopupOpen(false)
-      await fetchCategories()
+      setSuccessMessage("Catégorie modifiée avec succès !");
+      setModifyPopupOpen(false);
+      await fetchCategories();
 
       // Reset form
-      setModifiedCategoryName("")
-      setModifiedCategoryLogo(null)
-      setSelectedCategory(null)
+      setModifiedCategoryName("");
+      setModifiedCategoryLogo(null);
+      setSelectedCategory(null);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Une erreur est survenue")
+      setErrorMessage(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Function to delete a category
   const handleDeleteCategory = async () => {
     if (!selectedCategory) {
-      setErrorMessage("Veuillez sélectionner une catégorie")
-      return
+      setErrorMessage("Veuillez sélectionner une catégorie");
+      return;
     }
 
-    setIsLoading(true)
-    setStatusMessage(null)
+    setIsLoading(true);
+    setStatusMessage(null);
 
     try {
       const response = await fetch(`/api/categoriesAdmin/${selectedCategory.id}`, {
         method: "DELETE",
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Erreur lors de la suppression")
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erreur lors de la suppression");
       }
 
-      setSuccessMessage("Catégorie supprimée avec succès !")
-      setDeletePopupOpen(false)
-      await fetchCategories()
-      setSelectedCategory(null)
+      setSuccessMessage("Catégorie supprimée avec succès !");
+      setDeletePopupOpen(false);
+      await fetchCategories();
+      setSelectedCategory(null);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Une erreur est survenue")
+      setErrorMessage(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -264,11 +244,11 @@ const FormElements = () => {
 
             <div className="flex flex-col gap-5.5 p-6.5">
               <div>
-              <SelectCategories 
-                categories={categories} 
-                selectedCategory={selectedCategory} 
-                onCategoryChange={handleCategoryChange} 
-              />
+                <SelectCategories 
+                  categories={categories} 
+                  selectedCategory={selectedCategory} 
+                  onCategoryChange={handleCategoryChange} 
+                />
               </div>
 
               <div>
@@ -317,11 +297,11 @@ const FormElements = () => {
 
             <div className="flex flex-col gap-5.5 p-6.5">
               <div>
-              <SelectCategories 
-                categories={categories} 
-                selectedCategory={selectedCategory} 
-                onCategoryChange={handleCategoryChange} 
-              />
+                <SelectCategories 
+                  categories={categories} 
+                  selectedCategory={selectedCategory} 
+                  onCategoryChange={handleCategoryChange} 
+                />
               </div>
 
               <button
@@ -354,7 +334,7 @@ const FormElements = () => {
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default FormElements
+export default FormElements;

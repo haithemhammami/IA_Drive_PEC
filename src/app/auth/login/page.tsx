@@ -1,44 +1,63 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; // Update the import statement
 import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const router = useRouter();
 
-  const handleLogin = async () => {
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
     setIsLoading(true);
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    setErrorMessage('');
 
-    setIsLoading(false);
+    console.log('Email:', email);
+    console.log('Password:', password);
 
-    if (res.ok) {
-      const { token, user } = await res.json();
+    if (!email || !password) {
+      setErrorMessage('Email et mot de passe requis.');
+      setIsLoading(false);
+      return;
+    }
 
-      if (!user || !user.emailVerified) {
-        alert('Veuillez vérifier votre email avant de vous connecter.');
-        return;
-      }
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      localStorage.setItem('token', token);
-      if (user.role === 'ADMIN') {
-        router.push('/dashboard');
-      } else if (user.role === 'CLIENT') {
-        router.push('/products');
+      const data = await res.json();
+
+      setIsLoading(false);
+
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        console.log('Token:', data.token);
+        console.log('User Role:', data.user.role);
+
+        if (data.user.role === 'ADMIN') {
+          router.push('/dashboard');
+          return;
+        } else if (data.user.role === 'CLIENT') {
+          router.push('/');
+          return;
+        }
       } else {
-        const errorData = await res.json();
-        alert(errorData.error);
+        setErrorMessage(data.error);
       }
+    } catch (error) {
+      console.error('An unexpected error occurred:', error);
+      setErrorMessage('An unexpected error occurred. Please try again.');
+      setIsLoading(false);
     }
   };
 
@@ -46,11 +65,22 @@ export default function LoginPage() {
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <Image
-          className="mx-auto h-10 w-auto"
-          src="/logo.svg"
-          alt="Your Company"
-          width={40}
-          height={40}
+          className="mx-auto h-10 w-auto dark:hidden"
+          width={144}
+          height={32}
+          src="/images/logo.svg"
+          alt="YumiMind"
+          priority
+          style={{ width: "auto", height: "auto" }}
+        />
+        <Image
+          width={144}
+          height={32}
+          src="/images/logo.svg"
+          alt="YumiMind"
+          priority
+          className="hidden dark:block mx-auto h-10 w-auto"
+          style={{ width: "auto", height: "auto" }}
         />
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Se connecter à votre compte
@@ -58,7 +88,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+        <form className="space-y-6" onSubmit={handleLogin}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">Adresse email</label>
             <div className="mt-2">
@@ -103,6 +133,20 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
+
+        {errorMessage && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-6 rounded shadow-lg text-center">
+              <p className="text-red-500">{errorMessage}</p>
+              <button
+                onClick={() => setErrorMessage('')}
+                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
+        )}
 
         <p className="mt-10 text-center text-sm text-gray-500">
           Pas encore membre ? 

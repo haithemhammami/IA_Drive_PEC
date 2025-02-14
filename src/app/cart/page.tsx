@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -31,7 +32,7 @@ export default function CartPage() {
       const userToken = localStorage.getItem('userToken'); // Exemple, tu pourrais utiliser un cookie ou un token JWT
       if (!userToken) {
         setIsAuthenticated(false);
-        router.push('/login'); // Rediriger vers la page de connexion si l'utilisateur n'est pas authentifié
+        router.push('/auth/login'); // Rediriger vers la page de connexion si l'utilisateur n'est pas authentifié
       } else {
         setIsAuthenticated(true); // L'utilisateur est connecté
       }

@@ -11,12 +11,10 @@ enum AlertType {
   STOCK_RECOVERED = "STOCK_RECOVERED",
 }
 
-const alertStateStore: { [produitId: number]: { lastAlertType: AlertType, lastAlertDate: Date } } = {}
-
-async function fetchAlerts(retries = 3): Promise<any[]> {
+async function fetchAlerts(retries = 3): Promise<unknown[]> {
   try {
     return await prisma.alertes.findMany({
-      orderBy: { dateAlerte: "desc" },
+      orderBy: { dateAlerte: "desc" },got 
     })
   } catch (error) {
     if (retries > 0) {

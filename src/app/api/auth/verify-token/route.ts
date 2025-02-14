@@ -32,11 +32,12 @@ export async function POST(req: Request) {
     });
 
     return new Response(
-      JSON.stringify({ emailVerified: true }), // Renvoie si l'email est vérifié
+      JSON.stringify({ emailVerified: true }),
       { status: 200 }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
+    console.error('Erreur lors de la vérification du token:', error instanceof Error ? error.message : 'Erreur inconnue');
     return new Response(JSON.stringify({ error: 'Token invalide' }), { status: 403 });
   }
 }

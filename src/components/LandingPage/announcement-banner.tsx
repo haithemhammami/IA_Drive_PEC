@@ -17,7 +17,7 @@ export function AnnouncementBanner() {
           x: {
             repeat: Number.POSITIVE_INFINITY,
             repeatType: "loop",
-            duration: 20,
+            duration: 25,
             ease: "linear",
           },
         }}

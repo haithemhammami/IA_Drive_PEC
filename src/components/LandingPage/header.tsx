@@ -1,89 +1,119 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { useTheme } from "next-themes"
-import { motion, AnimatePresence } from "framer-motion"
-import { Moon, Sun, ShoppingCart, Menu, User, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useTheme } from "next-themes";
+import { motion, AnimatePresence } from "framer-motion";
+import { Moon, Sun, ShoppingCart, Menu, User, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { theme, setTheme } = useTheme()
-  const [isWaving, setIsWaving] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [isWaving, setIsWaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  interface Product {
+    id: string;
+    name: string;
+  }
+
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const router = typeof window !== 'undefined' ? useRouter() : null;
+  const [userId, setUserId] = useState("guest");
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsWaving(true), 500)
-    return () => clearTimeout(timer)
-  }, [])
+    const fetchUserId = async () => {
+      try {
+        const response = await axios.get('/api/auth/check-session', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = response.data as { user?: { id: string } };
+        if (data.user) {
+          setUserId((response.data as { user: { id: string } }).user.id);
+        } else {
+          setUserId("guest");
+        }
+      } catch (error) {
+        console.error("Failed to fetch user ID:", error);
+        setUserId("guest");
+      }
+    };
 
-  const scrollToSection = (sectionId: string) => {
-    const section = document.getElementById(sectionId)
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" })
+    fetchUserId();
+  }, []);
+
+  const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (searchQuery.trim() && router) {
+      router.push(`/search?query=${searchQuery}`);
     }
-    setIsMenuOpen(false)
-  }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsWaving(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+      <div className="container flex h-14 items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold text-lg">IA_Drive</span>
+          <Link href="/" className="text-2xl font-bold">
+            <Image
+              width={144}
+              height={32}
+              src="/images/logo.svg"
+              alt="YumiMind"
+              priority
+              className="dark:hidden"
+              style={{ width: "auto", height: "auto" }}
+            />
+            <Image
+              width={144}
+              height={32}
+              src="/images/logo.svg"
+              alt="YumiMind"
+              priority
+              className="hidden dark:block"
+              style={{ width: "auto", height: "auto" }}
+            />
           </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="p-0">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Catégories</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[200px] bg-white dark:bg-gray-800">
-              <DropdownMenuItem>
-                <Link href="/fruits-vegetables" className="flex items-center">
-                  🍎 Fruits et Légumes
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/dairy-eggs" className="flex items-center">
-                  🥚 Produits Laitiers et Œufs
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/meat-seafood" className="flex items-center">
-                  🍖 Viande et Fruits de Mer
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/bakery" className="flex items-center">
-                  🍞 Boulangerie
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <nav className="hidden md:flex space-x-4">
+            <Link href="/categories" className="flex items-center">
+               Catégories
+            </Link>
+            <Link href="/products" className="flex items-center">
+              Tous les produits
+            </Link>
+            <Link href="/meat-seafood" className="flex items-center">
+              IA-shoper
+            </Link>
+          </nav>
         </div>
-        <nav className="hidden md:flex ml-auto items-center space-x-6 text-sm font-medium">
-          <Button variant="ghost" onClick={() => scrollToSection("about")}>
-            À propos
-          </Button>
-          <Button variant="ghost" onClick={() => scrollToSection("features")}>
-            Fonctionnalités
-          </Button>
-          <Button variant="ghost" onClick={() => scrollToSection("tutorial")}>
-            Guide
-          </Button>
-        </nav>
         <div className="ml-auto flex items-center space-x-4">
-          <Input type="search" placeholder="Rechercher..." className="h-9 w-[200px] lg:w-[300px] hidden md:block" />
-          <Button variant="ghost" size="icon" className="relative" aria-label="Panier">
-            <ShoppingCart className="h-5 w-5" />
-            <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
-              3
-            </span>
-          </Button>
+          <form onSubmit={handleSearch} className="hidden md:block">
+            <Input
+              type="search"
+              placeholder="Rechercher..."
+              className="h-9 w-[200px] lg:w-[300px]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
+          <Link href={`/cart/${userId}`}>
+            <Button variant="ghost" size="icon" className="relative" aria-label="Panier">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
+                3
+              </span>
+            </Button>
+          </Link>
           <AnimatePresence mode="wait">
             {isWaving ? (
               <motion.div
@@ -94,7 +124,7 @@ export function Header() {
                 transition={{ duration: 0.5 }}
               >
                 <Button variant="ghost" size="icon" aria-label="Compte utilisateur">
-                  <Link href="/api/auth/login">
+                  <Link href="/profil">
                     <motion.div
                       animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
                       transition={{ duration: 2.5, loop: Number.POSITIVE_INFINITY, repeatDelay: 7 }}
@@ -113,7 +143,7 @@ export function Header() {
                 transition={{ duration: 0.5 }}
               >
                 <Button variant="ghost" size="icon" aria-label="Compte utilisateur">
-                  <Link href="/api/auth/login">
+                  <Link href="/auth/login">
                     <User className="h-5 w-5" />
                   </Link>
                 </Button>
@@ -144,20 +174,27 @@ export function Header() {
       {isMenuOpen && (
         <div className="md:hidden">
           <nav className="flex flex-col items-center space-y-4 py-4">
-            <Button variant="ghost" onClick={() => scrollToSection("about")}>
-              À propos
-            </Button>
-            <Button variant="ghost" onClick={() => scrollToSection("features")}>
-              Fonctionnalités
-            </Button>
-            <Button variant="ghost" onClick={() => scrollToSection("tutorial")}>
-              Guide
-            </Button>
-            <Input type="search" placeholder="Rechercher..." className="h-9 w-full max-w-[300px]" />
+            <Link href="/categories" className="flex items-center">
+              Categories
+            </Link>
+            <Link href="/products" className="flex items-center">
+              Tous les produits
+            </Link>
+            <Link href="/meat-seafood" className="flex items-center">
+              IA-shoper
+            </Link>
+            <form onSubmit={handleSearch} className="w-full max-w-[300px]">
+              <Input
+                type="search"
+                placeholder="Rechercher..."
+                className="h-9 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </form>
           </nav>
         </div>
       )}
     </header>
-  )
+  );
 }
-

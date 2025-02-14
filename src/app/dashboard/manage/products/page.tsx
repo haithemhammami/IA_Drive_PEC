@@ -1,14 +1,30 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import FormElements from "@/components/FormElements/products";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
+import { useRouter } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "IA Drive PEC",
-  description: " Application Drive alimentaire enrichie par IA pour Admin ",
-};
 
+import useAuth from "@/hooks/useAuth";
 const FormElementsPage = () => {
+ const { loading, isAdmin } = useAuth();
+   const router = useRouter();
+   const [authorized, setAuthorized] = useState(false);
+ 
+   useEffect(() => {
+     if (loading) return;
+ 
+     if (!isAdmin) {
+       router.push("/");
+     } else {
+       setAuthorized(true);
+     }
+   }, [loading, isAdmin, router]);
+ 
+   if (loading || !authorized) {
+     return <p>Chargement...</p>;
+   }
+
   return (
     <DefaultLayout>
       <FormElements />

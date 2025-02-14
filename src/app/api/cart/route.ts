@@ -92,31 +92,32 @@ export async function POST(request: Request) {
 
       return NextResponse.json({ cartItem: newCartItem }, { status: 201 });
     }
-  } catch (error: any) {
-    console.error("Erreur lors de l'ajout au panier:", error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Erreur lors de l'ajout au panier:", error.message);
+    } else {
+      console.error("Erreur inconnue lors de l'ajout au panier");
+    }
     return NextResponse.json({ message: "Erreur serveur." }, { status: 500 });
   }
 }
 
 
 export async function GET(req: Request, context: { params: { utilisateurId: string } }) {
-  const { utilisateurId } = context.params;  // Récupérer l'ID utilisateur à partir des paramètres
-
+  const { utilisateurId } = context.params;
   const utilisateurIdInt = parseInt(utilisateurId);
 
-  // Vérification si l'ID utilisateur est valide
   if (isNaN(utilisateurIdInt)) {
     return NextResponse.json({ message: 'ID utilisateur invalide' }, { status: 400 });
   }
 
   try {
-    // Récupérer tous les éléments du panier pour cet utilisateur
     const cartItems = await prisma.cart.findMany({
       where: {
-        utilisateurId: utilisateurIdInt,  // Filtrer les éléments du panier pour l'utilisateur donné
+        utilisateurId: utilisateurIdInt,
       },
       include: {
-        produit: true,  // Inclure les informations du produit lié à chaque élément du panier
+        produit: true,
       },
     });
 
@@ -124,9 +125,13 @@ export async function GET(req: Request, context: { params: { utilisateurId: stri
       return NextResponse.json({ message: 'Aucun produit dans le panier.' }, { status: 404 });
     }
 
-    return NextResponse.json(cartItems, { status: 200 });  // Retourner les éléments du panier avec les produits
-  } catch (error) {
-    console.error(error);
+    return NextResponse.json(cartItems, { status: 200 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('Erreur lors de la récupération du panier:', error.message);
+    } else {
+      console.error('Erreur inconnue lors de la récupération du panier');
+    }
     return NextResponse.json({ message: 'Erreur lors de la récupération du panier' }, { status: 500 });
   }
 }

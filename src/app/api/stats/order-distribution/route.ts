@@ -15,6 +15,9 @@ export async function GET(request: Request) {
     startDate.setDate(startDate.getDate() - 7)
   }
 
+  // Logging des dates de début et de fin
+  console.log('Dates de la requête:', { startDate, endDate });
+
   try {
     const orders = await prisma.commande.findMany({
       where: {

@@ -19,7 +19,7 @@ export default function SuccessPage() {
 
         if (!res.ok) throw new Error(data.message);
         setMessage("Paiement réussi ! 🎉");
-      } catch (err: any) {
+      } catch (err: unknown) {
         setMessage("Erreur de confirmation du paiement.");
       } finally {
         setLoading(false);

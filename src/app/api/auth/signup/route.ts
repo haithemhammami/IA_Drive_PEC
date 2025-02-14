@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client'; 
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
@@ -22,11 +22,14 @@ export async function POST(req: Request) {
   } else if (!/^\d{10}$/.test(telephone)) { // Validate 10-digit phone number
     return NextResponse.json(
       { error: `Le numéro de téléphone doit contenir exactement 10 chiffres.` },
+
       { status: 400 }
     );
   }
 
+
   // Return error if fields are missing
+
   if (missingFields.length > 0) {
     return NextResponse.json(
       { error: `Les champs suivants sont obligatoires : ${missingFields.join(', ')}.` },
@@ -43,6 +46,7 @@ export async function POST(req: Request) {
   }
 
   // Check if the email already exists
+
   const existingUser = await prisma.utilisateur.findUnique({
     where: { email },
   });
@@ -55,6 +59,7 @@ export async function POST(req: Request) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // Create user with 'CLIENT' role
+
   const user = await prisma.utilisateur.create({
     data: {
       email,
@@ -62,7 +67,7 @@ export async function POST(req: Request) {
       nom,
       adresse,
       phone: telephone,
-      role: 'CLIENT', // Set role to CLIENT
+      role: Role.CLIENT, // Set role to CLIENT
     },
   });
 

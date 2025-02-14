@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma  from "lib/prisma";
+import prisma from "lib/prisma";
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { mkdir } from 'fs/promises';
@@ -55,7 +55,6 @@ export async function POST(request: Request) {
   }
 }
 
-
 // GET - Récupérer toutes les catégories
 export async function GET() {
   try {
@@ -67,9 +66,21 @@ export async function GET() {
       }
     });
 
+    // Logging des catégories récupérées
+    console.log('Catégories récupérées:', categories);
+
     return NextResponse.json(categories);
   } catch (error) {
+    // Logging détaillé de l'erreur
     console.error("Erreur lors de la récupération des catégories:", error);
+    if (error) {
+      const errorDetails = error as unknown as Record<string, unknown>;
+      console.error("Détails de l'erreur:", {
+        message: errorDetails.message,
+        stack: errorDetails.stack,
+        ...errorDetails
+      });
+    }
     return NextResponse.json(
       { error: "Erreur lors de la récupération des catégories" },
       { status: 500 }

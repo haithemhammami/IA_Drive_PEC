@@ -1,5 +1,6 @@
-import Link from "next/link"
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
+import Link from "next/link";
+import Image from "next/image";
+import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 
 export function Footer() {
   return (
@@ -8,10 +9,27 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="text-2xl font-bold">
-              IA_Drive
+              <Image
+                width={176}
+                height={32}
+                src="/images/logo.svg"
+                alt="YumiMind"
+                priority
+                className="dark:hidden"
+                style={{ width: "auto", height: "auto" }}
+              />
+              <Image
+                width={176}
+                height={32}
+                src="/images/logo.svg"
+                alt="YumiMind"
+                priority
+                className="hidden dark:block"
+                style={{ width: "auto", height: "auto" }}
+              />
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300 max-w-md">
-              IA_Drive est un assistant de courses alimenté par l'IA qui vous aide à gérer efficacement vos achats
+              YumiMind est un assistant de courses alimenté par l'IA qui vous aide à gérer efficacement vos achats
               alimentaires. Simplifiez votre vie avec notre technologie innovante.
             </p>
             <div className="mt-6 flex space-x-6">
@@ -86,9 +104,8 @@ export function Footer() {
         </div>
       </div>
       <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8">
-        <p className="text-base text-gray-400 text-center">© 2025 IA_Drive. Tous droits réservés.</p>
+        <p className="text-base text-gray-400 text-center">© 2025 YumiMind. Tous droits réservés.</p>
       </div>
     </footer>
-  )
+  );
 }
-

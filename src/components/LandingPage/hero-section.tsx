@@ -24,7 +24,7 @@ export function HeroSection({ onStartClick }: { onStartClick: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              IA_Drive vous aide à gérer efficacement vos courses en générant automatiquement des listes de courses à
+              YumiMind vous aide à gérer efficacement vos courses en générant automatiquement des listes de courses à
               partir de photos d'aliments. Notre IA identifie les plats, extrait les ingrédients et suggère des recettes
               tout en recommandant les articles manquants.
             </motion.p>
@@ -51,7 +51,7 @@ export function HeroSection({ onStartClick }: { onStartClick: () => void }) {
           >
             <Image
               src="/hero.png"
-              alt="IA_Drive Hero Image"
+              alt="YumiMind Hero Image"
               width={1016}
               height={784}
               className="rounded-xl shadow-xl ring-1 ring-gray-400/10 dark:ring-gray-700/10 w-full h-auto object-cover transition-transform duration-300 hover:scale-105 sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto"

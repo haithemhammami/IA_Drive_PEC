@@ -1,39 +1,108 @@
-<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .dark { display: none; }
-    @media (prefers-color-scheme: dark) {
-      .light { display: none; }
-      .dark { display: inline; }
-    }
-  </style>
-  
-  <!-- Light mode version -->
-  <g class="light">
-    <circle cx="100" cy="100" r="90" fill="url(#gradient-light)" />
-    <path d="M65 80 L100 140 L135 80 Z" fill="#FFFFFF" stroke="#000000" stroke-width="4"/>
-    <circle cx="100" cy="100" r="20" fill="#FFFFFF" stroke="#000000" stroke-width="4"/>
-    <line x1="70" y1="60" x2="130" y2="60" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="120" y2="50" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
-  </g>
-
-  <!-- Dark mode version -->
-  <g class="dark">
-    <circle cx="100" cy="100" r="90" fill="url(#gradient-dark)" />
-    <path d="M65 80 L100 140 L135 80 Z" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="4"/>
-    <circle cx="100" cy="100" r="20" fill="#1A1A1A" stroke="#FFFFFF" stroke-width="4"/>
-    <line x1="70" y1="60" x2="130" y2="60" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
-    <line x1="80" y1="50" x2="120" y2="50" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
-  </g>
-
-  <!-- Gradients -->
+<svg width="250" height="60" viewBox="0 0 250 60" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="gradient-light" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#4A90E2"/>
-      <stop offset="100%" stop-color="#50E3C2"/>
-    </linearGradient>
-    <linearGradient id="gradient-dark" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#2C3E50"/>
-      <stop offset="100%" stop-color="#34495E"/>
-    </linearGradient>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&amp;display=swap');
+      .logo-text { 
+        font-family: 'Caveat', cursive;
+        font-weight: 700; 
+        letter-spacing: 0.5px;
+      }
+      /* Mode clair */
+      .primary { fill: #4F46E5; }
+      .secondary { fill: #818CF8; }
+      .highlight { fill: #6366F1; }
+      .cart-fill { fill: #EEF2FF; }
+      .cart-stroke { stroke: #4F46E5; }
+      
+      /* Mode sombre */
+      @media (prefers-color-scheme: dark) {
+        .primary { fill: #818CF8; }
+        .secondary { fill: #A5B4FC; }
+        .highlight { fill: #6366F1; }
+        .cart-fill { fill: #1E1B4B; }
+        .cart-stroke { stroke: #818CF8; }
+      }
+    </style>
+
+    <!-- Ajout d'effets de flou pour un aspect plus doux -->
+    <filter id="softBlur">
+      <feGaussianBlur stdDeviation="0.5"/>
+    </filter>
   </defs>
+
+  <!-- Chariot amélioré -->
+  <g transform="translate(10, 12)">
+    <!-- Ombre douce sous le chariot -->
+    <ellipse cx="20" cy="38" rx="18" ry="3" 
+             fill="rgba(0,0,0,0.1)" 
+             filter="url(#softBlur)"/>
+    
+    <!-- Corps du chariot avec remplissage -->
+    <path d="M5,10 C8,9 20,10 35,10 
+             C34,16 32,23 30,30 
+             C25,31 15,31 10,30 
+             C8,25 6,15 5,10 Z" 
+          class="cart-stroke cart-fill"
+          stroke-width="2.5" 
+          stroke-linejoin="round"/>
+    
+    <!-- Détails décoratifs sur le chariot -->
+    <path d="M10,15 C15,14 25,14 30,15" 
+          class="cart-stroke"
+          stroke-width="1.5" 
+          fill="none" 
+          opacity="0.6"/>
+    
+    <!-- Poignée avec style plus fluide -->
+    <path d="M2,2 C5,-3 12,-4 18,4" 
+          class="cart-stroke"
+          stroke-width="2.5" 
+          fill="none" 
+          stroke-linecap="round"/>
+    
+    <!-- Roues avec détails -->
+    <g class="primary">
+      <circle cx="10" cy="34" r="4" 
+              class="cart-stroke cart-fill"
+              stroke-width="2"/>
+      <path d="M8,32 C9,33 11,35 12,36" 
+            class="cart-stroke"
+            stroke-width="1.5" 
+            fill="none"/>
+      <!-- Point central -->
+      <circle cx="10" cy="34" r="1" 
+              class="cart-stroke"/>
+    </g>
+    
+    <g class="primary">
+      <circle cx="30" cy="34" r="4" 
+              class="cart-stroke cart-fill"
+              stroke-width="2"/>
+      <path d="M28,32 C29,33 31,35 32,36" 
+            class="cart-stroke"
+            stroke-width="1.5" 
+            fill="none"/>
+      <!-- Point central -->
+      <circle cx="30" cy="34" r="1" 
+              class="cart-stroke"/>
+    </g>
+  </g>
+
+  <!-- Texte avec effet de superposition subtil -->
+  <g class="logo-text">
+    <text x="60" y="35" font-size="36" 
+          class="primary" 
+          text-anchor="start">
+      Yumi<tspan class="secondary" dx="2">Mind</tspan>
+    </text>
+    
+    <!-- Tagline avec espacement amélioré -->
+    <text x="65" y="50" 
+          class="secondary" 
+          font-size="16" 
+          text-anchor="start"
+          letter-spacing="1">
+      Smart &amp; Tasty
+    </text>
+  </g>
 </svg>

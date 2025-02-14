@@ -1,5 +1,5 @@
 export type Chat = {
-  active?: any;
+  active?: unknown;
   seen?: boolean;
   avatar: string;
   name: string;
