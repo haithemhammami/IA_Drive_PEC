@@ -33,6 +33,7 @@
     "flatpickr": "^4.6.13",
     "formidable": "^3.5.2",
     "framer-motion": "^12.0.6",
+    "hooks": "^0.3.2",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",
     "jsvectormap": "^1.6.0",
