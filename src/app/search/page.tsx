@@ -1,14 +1,14 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
 import { Produit } from '@prisma/client';
 import Image from 'next/image';
 
-export default function SearchPage() {
+function SearchComponent() {
   const searchParams = useSearchParams();
   const query = searchParams ? searchParams.get('query') : null;
   const [searchResults, setSearchResults] = useState<Produit[]>([]);
@@ -131,5 +131,13 @@ export default function SearchPage() {
         <p>Aucun résultat trouvé.</p>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchComponent />
+    </Suspense>
   );
 }

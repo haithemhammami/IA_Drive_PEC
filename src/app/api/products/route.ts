@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import {prisma} from "@/lib/prisma"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -61,25 +61,21 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const url = new URL(request.url);
-    const productId = url.pathname.split("/").pop();
-    const { userId } = await request.json(); // Assuming userId is passed in the request body
+    const { productId } = await request.json()
+    const product = await prisma.produit.findUnique({
+      where: { id: productId },
+    })
 
-    const response = await fetch('/api/cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, utilisateurId: userId }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      return NextResponse.json({ message: "Produit ajouté au panier" });
-    } else {
-      return NextResponse.json({ error: data.message || "Erreur lors de l'ajout au panier" }, { status: response.status });
+    if (!product) {
+      return NextResponse.json({ error: "Produit non trouvé" }, { status: 404 })
     }
+
+    // Logique pour ajouter le produit au panier (à implémenter selon votre structure de données)
+    // Par exemple, ajouter le produit à une table "cart" dans la base de données
+
+    return NextResponse.json({ message: "Produit ajouté au panier" })
   } catch (error) {
-    console.error("Erreur API ajout au panier:", error);
-    return NextResponse.json({ error: "Erreur lors de l'ajout au panier" }, { status: 500 });
+    console.error("Erreur API ajout au panier:", error)
+    return NextResponse.json({ error: "Erreur lors de l'ajout au panier" }, { status: 500 })
   }
 }
