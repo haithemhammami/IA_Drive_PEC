@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 
-type Props = {
-  params: { productId: string };
+type PageProps = {
+  params: {
+    productId: string;
+  };
 };
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage({ params }: PageProps) {
   // Vérification et conversion de l'ID du produit
   const productId = Number(params.productId);
   if (isNaN(productId)) {
@@ -25,7 +27,7 @@ export default async function ProductPage({ params }: Props) {
     <div className="flex flex-col justify-center px-2 py-12 my-12 mx-auto w-3/4 aspect-square bg-white shadow-lg rounded-lg">
       {product.image && (
         <Image
-          src={product.image || "/placeholder.svg"}
+          src={product.image || "/file.svg"}
           alt={product.nom}
           className="h-40 w-full object-cover rounded-md"
           width={300}
@@ -38,15 +40,4 @@ export default async function ProductPage({ params }: Props) {
       <p className="text-gray-600 font-medium text-lg">Prix : {product.prix} €</p>
     </div>
   );
-}
-
-// Ajoutez cette fonction pour générer les paramètres statiques
-export async function generateStaticParams() {
-  const products = await prisma.produit.findMany({
-    select: { id: true },
-  });
-
-  return products.map((product) => ({
-    productId: product.id.toString(),
-  }));
 }
