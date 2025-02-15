@@ -68,16 +68,16 @@ const OrderPage = () => {
   }, [orderId, router]);
 
   if (loading) {
-    return <p>Chargement...</p>;
+    return <p aria-live="polite">Chargement...</p>;
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return <p aria-live="assertive">{error}</p>;
   }
 
   return (
-    <div className="p-5 font-sans">
-      <h1 className="text-2xl mb-5">Commande #{order?.id}</h1>
+    <div className="p-5 font-sans" tabIndex={-1} aria-labelledby="order-heading">
+      <h1 id="order-heading" className="text-2xl mb-5">Commande #{order?.id}</h1>
       <p className="text-lg">Client: {order?.client.nom}</p>
       <p className="text-lg">Statut: {order?.statut.statut}</p>
       <p className="text-lg font-bold">Total: {order?.total}€</p>
@@ -87,7 +87,7 @@ const OrderPage = () => {
           <div key={detail.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
             <img 
               src={detail.produit.image || '/default-image.png'} 
-              alt={detail.produit.nom} 
+              alt={`Image de ${detail.produit.nom}`} 
               className="w-full h-64 object-contain group-hover:opacity-75 transition duration-300" 
               onError={handleImageError} 
             />

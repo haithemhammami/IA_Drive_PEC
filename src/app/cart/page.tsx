@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import Image from 'next/image'; // Import next/image
@@ -26,6 +26,7 @@ export default function CartPage() {
   const [error, setError] = useState<string | null>(null); // Gérer les erreurs
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); // Vérifier l'authentification
   const router = useRouter(); // Pour la redirection
+  const cartRef = useRef<HTMLDivElement>(null);
 
   // Effectuer la vérification de l'authentification
   useEffect(() => {
@@ -68,6 +69,10 @@ export default function CartPage() {
     fetchCart(); // Lancer la récupération du panier
   }, [utilisateurId, isAuthenticated]); // Rechargement lorsque l'utilisateur devient authentifié
 
+  useEffect(() => {
+    cartRef.current?.focus();
+  }, [loading, error]);
+
   // Si en cours de chargement, afficher un message de chargement
   if (loading) {
     return <div>Chargement du panier...</div>;
@@ -84,7 +89,7 @@ export default function CartPage() {
   }
 
   return (
-    <div>
+    <div ref={cartRef} tabIndex={-1} aria-live="polite">
       <h1>Panier de l'utilisateur {utilisateurId}</h1>
       <div>
         {cartItems.map((item) => (

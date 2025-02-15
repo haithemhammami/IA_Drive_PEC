@@ -1,14 +1,13 @@
+"use client";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
-interface ProductPageProps {
-  params: {
-    productId: string;
-  };
-}
+interface ProductPageProps {}
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const productId = parseInt(params.productId, 10);
+export default async function ProductPage({}: ProductPageProps) {
+  const searchParams = useSearchParams();
+  const productId = searchParams ? parseInt(searchParams.get('productId') || '', 10) : NaN;
 
   if (isNaN(productId)) {
     return <div className="text-center text-red-600 p-4">Produit non trouvé.</div>;

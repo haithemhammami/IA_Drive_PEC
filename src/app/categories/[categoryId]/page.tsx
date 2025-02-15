@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { Produit, Prisma } from '@prisma/client';
 import { jwtDecode } from 'jwt-decode';
@@ -15,6 +15,7 @@ export default function ProductsByCategoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [cart, setCart] = useState<Produit[]>([]);
   const [userId, setUserId] = useState<number | null>(null);
+  const categoryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!categoryId) return;
@@ -51,6 +52,10 @@ export default function ProductsByCategoryPage() {
     }
   }, [categoryId]);
 
+  useEffect(() => {
+    categoryRef.current?.focus();
+  }, [loading, error]);
+
   const addToCart = async (product: Produit) => {
     if (!userId) {
       alert("Veuillez vous connecter pour ajouter des produits au panier.");
@@ -82,7 +87,7 @@ export default function ProductsByCategoryPage() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="bg-white">
+    <div className="bg-white" ref={categoryRef} tabIndex={-1} aria-live="polite">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h1 className="text-3xl font-bold mb-6 text-center">Produits de la catégorie {categoryId}</h1>
         {products.length > 0 ? (
@@ -106,6 +111,7 @@ export default function ProductsByCategoryPage() {
                 <button
                   onClick={() => addToCart(product)}
                   className="mt-4 w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+                  aria-label={`Ajouter ${product.nom} au panier`}
                 >
                   Ajouter au panier
                 </button>

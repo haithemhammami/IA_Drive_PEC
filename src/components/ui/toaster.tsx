@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/toast"
 
 export function Toaster() {
-  const { toasts } = useToast()
+  const { toasts }: { toasts: Array<{ id: string, title?: string, description?: string, action?: React.ReactNode }> } = useToast()
 
   return (
     <ToastProvider>
