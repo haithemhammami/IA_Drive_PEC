@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import type { Produit } from "@prisma/client"
@@ -33,7 +33,7 @@ export default function ProductsPage() {
         }
         const data = await res.json()
         setProducts(data.products)
-        setNotFoundProducts(data.notFoundProducts)
+        setNotFoundProducts(data.notFoundProducts || [])
       } catch (err: any) {
         setError(err.message || "Erreur lors de la récupération des produits")
       } finally {
