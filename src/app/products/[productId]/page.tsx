@@ -39,3 +39,14 @@ export default async function ProductPage({ params }: Props) {
     </div>
   );
 }
+
+// Ajoutez cette fonction pour générer les paramètres statiques
+export async function generateStaticParams() {
+  const products = await prisma.produit.findMany({
+    select: { id: true },
+  });
+
+  return products.map((product) => ({
+    productId: product.id.toString(),
+  }));
+}
