@@ -23,6 +23,7 @@ export default function LoginPage() {
     if (!email || !password) {
       setErrorMessage('Email et mot de passe requis.');
       setIsLoading(false);
+      document.getElementById('error-message')?.focus();
       return;
     }
 
@@ -88,7 +89,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleLogin}>
+        <form className="space-y-6" onSubmit={handleLogin} aria-describedby="error-message">
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">Adresse email</label>
             <div className="mt-2">
@@ -102,6 +103,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
+                aria-required="true"
               />
             </div>
           </div>
@@ -119,6 +121,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mot de passe"
+                aria-required="true"
               />
             </div>
           </div>
@@ -128,6 +131,7 @@ export default function LoginPage() {
               type="submit"
               disabled={isLoading}
               className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm ${isLoading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-500'} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600`}
+              aria-busy={isLoading}
             >
               {isLoading ? 'Chargement...' : 'Se connecter'}
             </button>
@@ -135,7 +139,7 @@ export default function LoginPage() {
         </form>
 
         {errorMessage && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div id="error-message" className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" tabIndex={-1} role="alert">
             <div className="bg-white p-6 rounded shadow-lg text-center">
               <p className="text-red-500">{errorMessage}</p>
               <button

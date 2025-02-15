@@ -2,12 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Utilisateur } from '@prisma/client';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<Utilisateur | null>(null);
   const router = useRouter();
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -17,7 +18,6 @@ export default function ProfilePage() {
     }
 
     try {
-      //const decoded: any = jwtDecode(token);
       fetch('/api/profile', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -38,12 +38,16 @@ export default function ProfilePage() {
     }
   }, [router]);
 
+  useEffect(() => {
+    profileRef.current?.focus();
+  }, [user]);
+
   if (!user) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8" ref={profileRef} tabIndex={-1} aria-live="polite">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Profil de {user.nom}

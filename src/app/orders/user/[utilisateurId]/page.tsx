@@ -47,11 +47,11 @@ const UserOrdersPage = () => {
   }, [utilisateurId, router]);
 
   if (loading) {
-    return <p>Chargement...</p>;
+    return <p aria-live="polite">Chargement...</p>;
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return <p aria-live="assertive">{error}</p>;
   }
 
   return (

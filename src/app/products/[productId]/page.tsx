@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 type PageProps = {
   params: {

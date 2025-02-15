@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -12,6 +12,7 @@ export default function EditProfilePage() {
   const [address, setAddress] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -66,8 +67,13 @@ export default function EditProfilePage() {
     } else {
       const errorData = await res.json();
       setError(errorData.error);
+      formRef.current?.querySelector('input')?.focus(); // Focus on the first input field
     }
   };
+
+  useEffect(() => {
+    formRef.current?.querySelector('input')?.focus(); // Focus on the first input field on mount
+  }, []);
 
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-white-100">
@@ -87,7 +93,7 @@ export default function EditProfilePage() {
       {error && <p className="text-red-500 text-center">{error}</p>}
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleEditProfile}>
+        <form className="space-y-6" onSubmit={handleEditProfile} ref={formRef}>
           {/* Email Field */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">

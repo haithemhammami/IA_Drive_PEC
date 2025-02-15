@@ -27,7 +27,7 @@ const LogoutPage = () => {
     logout();
   }, []);
 
-  return <p>Déconnexion en cours...</p>;
+  return <p role="status" aria-live="polite">Déconnexion en cours...</p>;
 };
 
 export default LogoutPage;

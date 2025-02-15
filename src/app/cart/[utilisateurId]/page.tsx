@@ -1,6 +1,6 @@
 'use client';  // Assure-toi que ce composant est exécuté côté client
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -23,6 +23,7 @@ const UserCartPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const cartRef = useRef<HTMLDivElement>(null);
 
   const fetchCartItems = async (utilisateurId: string): Promise<CartItem[]> => {
     const response = await fetch(`/api/cart/${utilisateurId}`);
@@ -130,6 +131,10 @@ const UserCartPage = () => {
     setTotalAmount(updatedTotalAmount);
   }, [cartItems]);
 
+  useEffect(() => {
+    cartRef.current?.focus();
+  }, [loading, error]);
+
   if (loading) {
     return <p className="text-center text-gray-500">Chargement...</p>;
   }
@@ -139,7 +144,7 @@ const UserCartPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 min-h-screen">
+    <div className="container mx-auto p-6 min-h-screen" ref={cartRef} tabIndex={-1} aria-live="polite">
       <h1 className="text-3xl font-bold mb-6 text-center">Panier de {userName}</h1>
       {cartItems.length === 0 ? (
         <p className="text-center text-gray-500">Aucun produit dans le panier.</p>
@@ -158,12 +163,14 @@ const UserCartPage = () => {
                   <button 
                     onClick={() => handleRemoveItem(item.produitId)} 
                     className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+                    aria-label={`Diminuer la quantité de ${item.produit.nom}`}
                   >
                     Diminuer
                   </button>
                   <button 
                     onClick={() => handleRemoveItem(item.produitId, true)} 
                     className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                    aria-label={`Supprimer ${item.produit.nom} du panier`}
                   >
                     Supprimer
                   </button>
@@ -175,6 +182,7 @@ const UserCartPage = () => {
           <button 
             onClick={handleCheckout} 
             className="mt-6 w-full px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+            aria-label="Valider le panier et passer commande"
           >
             Valider le panier et passer commande
           </button>

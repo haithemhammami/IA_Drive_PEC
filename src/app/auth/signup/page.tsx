@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -12,6 +12,7 @@ export default function SignUpPage() {
   const [address, setAddress] = useState('');
   const [telephone, setTelephone] = useState('');
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Default role
   const role = 'CLIENT'; // No need to store it in state
@@ -32,8 +33,13 @@ export default function SignUpPage() {
     } else {
       const errorData = await res.json();
       alert(errorData.error); // Display error message
+      formRef.current?.querySelector('input')?.focus(); // Focus on the first input field
     }
   };
+
+  useEffect(() => {
+    formRef.current?.querySelector('input')?.focus(); // Focus on the first input field on mount
+  }, []);
 
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-white-100">
@@ -62,7 +68,7 @@ export default function SignUpPage() {
       </div>
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleSignUp}>
+        <form className="space-y-6" onSubmit={handleSignUp} ref={formRef}>
           {/* Email Field */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
