@@ -491,14 +491,13 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
 
       {/* Toggle Button */}
       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="relative">
-        <button
+        <Button
           onClick={() => setIsOpen(!isOpen)}
           className="rounded-full w-16 h-16 shadow-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
         >
           <Brain className="h-8 w-8 text-white" />
-        </button>
+        </Button>
       </motion.div>
     </div>
   )
 }
-
