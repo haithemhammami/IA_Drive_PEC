@@ -4,11 +4,16 @@ import { useRouter } from "next/router";
 import { useEffect, useState, useRef } from "react";
 
 export default function SuccessPage() {
-  const router = useRouter();
-  const { session_id: sessionId } = router.query;
+  const [isClient, setIsClient] = useState(false);
+  const router = isClient ? useRouter() : null;
+  const { session_id: sessionId } = router?.query || {};
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const successRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     async function confirmPayment() {
@@ -28,8 +33,10 @@ export default function SuccessPage() {
       }
     }
 
-    confirmPayment();
-  }, [sessionId]);
+    if (isClient) {
+      confirmPayment();
+    }
+  }, [sessionId, isClient]);
 
   return (
     <div className="max-w-xl mx-auto text-center mt-20" ref={successRef} tabIndex={-1} aria-live="polite">

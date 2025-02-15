@@ -1,64 +1,76 @@
-"use client"
+"use client";
 
-import { Suspense, useEffect, useState } from "react"
-import { useSearchParams } from "next/navigation"
-import Link from "next/link"
-import type { Produit } from "@prisma/client"
-import { jwtDecode } from "jwt-decode"
-import { Button } from "@/components/ui/button"
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import type { Produit } from "@prisma/client";
+import { jwtDecode } from "jwt-decode";
+import { Button } from "@/components/ui/button";
+
+export const dynamic = "force-dynamic"; // Forcer le rendu dynamique
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Produit[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-  const [cart, setCart] = useState<Produit[]>([])
-  const [userId, setUserId] = useState<number | null>(null)
-  const [sortOrder, setSortOrder] = useState<string>("asc")
-  const [notFoundProducts, setNotFoundProducts] = useState<string[]>([])
+  return (
+    <Suspense fallback={<div className="text-center p-4">Chargement...</div>}>
+      <ProductsPageContent />
+    </Suspense>
+  );
+}
 
-  const searchParams = useSearchParams()
-  const ingredients = searchParams ? searchParams.get("ingredients") : null
+function ProductsPageContent() {
+  const [products, setProducts] = useState<Produit[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [cart, setCart] = useState<Produit[]>([]);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [sortOrder, setSortOrder] = useState<string>("asc");
+  const [notFoundProducts, setNotFoundProducts] = useState<string[]>([]);
+
+  const searchParams = useSearchParams();
+  const ingredients = searchParams ? searchParams.get("ingredients") : null;
 
   useEffect(() => {
     async function fetchProducts() {
-      setLoading(true)
+      setLoading(true);
       try {
-        let url = "/api/products"
+        let url = "/api/products";
         if (ingredients) {
-          url += `?ingredients=${encodeURIComponent(ingredients)}`
+          url += `?ingredients=${encodeURIComponent(ingredients)}`;
         }
-        const res = await fetch(url)
+        const res = await fetch(url);
         if (!res.ok) {
-          throw new Error(`Erreur: ${res.status}`)
+          throw new Error(`Erreur: ${res.status}`);
         }
-        const data = await res.json()
-        setProducts(data.products)
-        setNotFoundProducts(data.notFoundProducts || [])
+        const data = await res.json();
+        console.log("Fetched products:", data.products);
+        setProducts(data.products);
+        setNotFoundProducts(data.notFoundProducts || []);
       } catch (err: any) {
-        setError(err.message || "Erreur lors de la récupération des produits")
+        console.error("Error fetching products:", err);
+        setError(err.message || "Erreur lors de la récupération des produits");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    fetchProducts()
+    fetchProducts();
 
     // Decode JWT to retrieve user ID
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decoded: any = jwtDecode(token)
-        setUserId(decoded.userId)
+        const decoded: any = jwtDecode(token);
+        setUserId(decoded.userId);
       } catch (err) {
-        console.error("Erreur de décodage du token", err)
+        console.error("Erreur de décodage du token", err);
       }
     }
-  }, [ingredients])
+  }, [ingredients]);
 
   const addToCart = async (product: Produit) => {
     if (!userId) {
-      alert("Veuillez vous connecter pour ajouter des produits au panier.")
-      return
+      alert("Veuillez vous connecter pour ajouter des produits au panier.");
+      return;
     }
 
     try {
@@ -69,33 +81,29 @@ export default function ProductsPage() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ utilisateurId: userId, productId: product.id }),
-      })
+      });
 
       if (!res.ok) {
-        throw new Error(`Erreur: ${res.status}`)
+        throw new Error(`Erreur: ${res.status}`);
       }
 
-      const { cartItem } = await res.json()
-      setCart((prevCart) => [...prevCart, cartItem.produit])
+      const { cartItem } = await res.json();
+      setCart((prevCart) => [...prevCart, cartItem.produit]);
     } catch (err: any) {
-      console.error("Erreur lors de l'ajout au panier:", err.message)
+      console.error("Erreur lors de l'ajout au panier:", err.message);
     }
-  }
+  };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortOrder(e.target.value)
-  }
+    setSortOrder(e.target.value);
+  };
 
   const sortedProducts = [...products].sort((a, b) => {
-    if (sortOrder === "asc") {
-      return a.prix - b.prix
-    } else {
-      return b.prix - a.prix
-    }
-  })
+    return sortOrder === "asc" ? a.prix - b.prix : b.prix - a.prix;
+  });
 
-  if (loading) return <div className="text-center p-4">Chargement...</div>
-  if (error) return <div className="text-center text-red-600 p-4">{error}</div>
+  if (loading) return <div className="text-center p-4">Chargement...</div>;
+  if (error) return <div className="text-center text-red-600 p-4">{error}</div>;
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -157,5 +165,5 @@ export default function ProductsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
