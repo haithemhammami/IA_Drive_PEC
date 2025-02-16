@@ -249,6 +249,7 @@ const Sidebar = React.forwardRef<
           <div
             data-sidebar="sidebar"
             className={cn("pb-4 pt-0", className ? className : "")}
+          >
             {children}
           </div>
         </div>
