@@ -1,4 +1,5 @@
 "use client"
+import type React from "react"
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -343,12 +344,12 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
   }
 
   const handleError = (error: Error) => {
-    console.error(error);
-  };
+    console.error(error)
+  }
 
   const handleProducts = (products: Product[]) => {
     // Process products
-  };
+  }
 
   return (
     <div
@@ -366,12 +367,14 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
             className="mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl"
+            role="dialog"
+            aria-label="Assistant IA"
           >
             <div className="w-[380px] max-h-[600px] flex flex-col">
               {/* Header */}
               <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
                 <div className="flex items-center space-x-3">
-                  <Brain className="h-6 w-6 text-primary" />
+                  <Brain className="h-6 w-6 text-primary" aria-hidden="true" />
                   <h3 className="text-lg font-semibold">Assistant Culinaire IA</h3>
                 </div>
                 <Button
@@ -379,8 +382,9 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
                   size="icon"
                   className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
                   onClick={() => setIsOpen(false)}
+                  aria-label="Fermer l'assistant"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </div>
 
@@ -388,6 +392,8 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
               <div
                 ref={chatContainerRef}
                 className="flex-grow overflow-y-auto p-4 space-y-4 min-h-[300px] max-h-[400px] bg-gray-50 dark:bg-gray-900"
+                role="log"
+                aria-live="polite"
               >
                 {messages.map((message, index) => (
                   <div
@@ -395,7 +401,10 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
                     className={`flex items-start space-x-3 ${message.type === "user" ? "justify-end" : ""}`}
                   >
                     {message.type === "assistant" && (
-                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                      <div
+                        className="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
+                        aria-hidden="true"
+                      >
                         <Brain className="h-5 w-5 text-white" />
                       </div>
                     )}
@@ -410,7 +419,10 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
                 ))}
                 {isLoading && (
                   <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                    <div
+                      className="w-8 h-8 rounded-full bg-primary flex items-center justify-center"
+                      aria-hidden="true"
+                    >
                       <Brain className="h-5 w-5 text-white" />
                     </div>
                     <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
@@ -418,6 +430,7 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
                         animate={{ opacity: [0.4, 1, 0.4] }}
                         transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
                         className="text-sm"
+                        aria-label="L'assistant est en train de répondre"
                       >
                         ...
                       </motion.div>
@@ -429,7 +442,13 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
               {/* Camera View */}
               {showCamera && (
                 <div className="relative w-full h-[200px] bg-black">
-                  <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                    aria-label="Aperçu de la caméra"
+                  />
                   <Button onClick={takePhoto} className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
                     Prendre la photo
                   </Button>
@@ -440,14 +459,14 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
               <div className="p-4 space-y-4 border-t dark:border-gray-700 bg-white dark:bg-gray-800">
                 <div className="flex space-x-2">
                   <Button onClick={handleCameraAccess} variant="outline" className="flex-1 h-10" disabled={showCamera}>
-                    <Camera className="h-4 w-4 mr-2" />
+                    <Camera className="h-4 w-4 mr-2" aria-hidden="true" />
                     Photo
                   </Button>
                   <Button onClick={handleFileUpload} variant="outline" className="flex-1 h-10" disabled={isLoading}>
                     {isLoading ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
                     ) : (
-                      <Upload className="h-4 w-4 mr-2" />
+                      <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
                     )}
                     Import
                   </Button>
@@ -457,6 +476,7 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
                     onChange={handleFileChange}
                     accept="image/*"
                     className="hidden"
+                    aria-label="Importer une image"
                   />
                 </div>
 
@@ -473,14 +493,16 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
                         handleSendMessage()
                       }
                     }}
+                    aria-label="Votre message"
                   />
                   <Button
                     className="absolute right-2 bottom-2 rounded-full w-8 h-8 p-0"
                     size="icon"
                     onClick={handleSendMessage}
                     disabled={isLoading || !userInput.trim()}
+                    aria-label="Envoyer le message"
                   >
-                    <Send className="h-4 w-4" />
+                    <Send className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               </div>
@@ -494,8 +516,9 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
         <Button
           onClick={() => setIsOpen(!isOpen)}
           className="rounded-full w-16 h-16 shadow-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+          aria-label={isOpen ? "Fermer l'assistant IA" : "Ouvrir l'assistant IA"}
         >
-          <Brain className="h-8 w-8 text-white" />
+          <Brain className="h-8 w-8 text-white" aria-hidden="true" />
         </Button>
       </motion.div>
     </div>

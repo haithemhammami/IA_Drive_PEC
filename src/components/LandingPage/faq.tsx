@@ -31,9 +31,11 @@ export function FAQ() {
   }
 
   return (
-    <section className="py-20 sm:py-32 bg-gray-50 dark:bg-gray-900" id="faq">
+    <section className="py-20 sm:py-32 bg-gray-50 dark:bg-gray-900" id="faq" aria-labelledby="faq-title">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center mb-12">Foire Aux Questions</h2>
+        <h2 id="faq-title" className="text-3xl font-bold text-center mb-12">
+          Foire Aux Questions
+        </h2>
         <div className="max-w-3xl mx-auto">
           {faqs.map((faq, index) => (
             <motion.div
@@ -44,17 +46,20 @@ export function FAQ() {
               <motion.button
                 className="w-full px-6 py-4 text-left flex justify-between items-center"
                 onClick={() => toggleFAQ(index)}
+                aria-expanded={activeIndex === index}
+                aria-controls={`faq-answer-${index}`}
               >
                 <span className="font-medium">{faq.question}</span>
                 {activeIndex === index ? (
-                  <ChevronUp className="h-5 w-5 text-gray-500" />
+                  <ChevronUp className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
+                  <ChevronDown className="h-5 w-5 text-gray-500" aria-hidden="true" />
                 )}
               </motion.button>
               <AnimatePresence initial={false}>
                 {activeIndex === index && (
                   <motion.div
+                    id={`faq-answer-${index}`}
                     initial="collapsed"
                     animate="open"
                     exit="collapsed"

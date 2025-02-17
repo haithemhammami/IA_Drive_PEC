@@ -1,31 +1,32 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import Link from "next/link"
+import Image from "next/image"
+import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
 
 export function Footer() {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900">
+    <footer className="bg-gray-100 dark:bg-gray-900" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">
+        Footer
+      </h2>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="text-2xl font-bold">
+            <Link href="/" className="inline-block" aria-label="Accueil YumiMind">
               <Image
                 width={176}
                 height={32}
                 src="/images/logo.svg"
-                alt="YumiMind"
+                alt="Logo YumiMind"
                 priority
                 className="dark:hidden"
-                //style={{ width: "auto", height: "auto" }}
               />
               <Image
                 width={176}
                 height={32}
                 src="/images/logo.svg"
-                alt="YumiMind"
+                alt="Logo YumiMind"
                 priority
                 className="hidden dark:block"
-                //style={{ width: "auto", height: "auto" }}
               />
             </Link>
             <p className="mt-4 text-sm text-gray-600 dark:text-gray-300 max-w-md">
@@ -33,21 +34,21 @@ export function Footer() {
               alimentaires. Simplifiez votre vie avec notre technologie innovante.
             </p>
             <div className="mt-6 flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-gray-500">
+              <a href="#" className="text-gray-400 hover:text-gray-500" aria-label="Facebook">
                 <span className="sr-only">Facebook</span>
-                <Facebook className="h-6 w-6" />
+                <Facebook className="h-6 w-6" aria-hidden="true" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-500">
+              <a href="#" className="text-gray-400 hover:text-gray-500" aria-label="Twitter">
                 <span className="sr-only">Twitter</span>
-                <Twitter className="h-6 w-6" />
+                <Twitter className="h-6 w-6" aria-hidden="true" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-500">
+              <a href="#" className="text-gray-400 hover:text-gray-500" aria-label="Instagram">
                 <span className="sr-only">Instagram</span>
-                <Instagram className="h-6 w-6" />
+                <Instagram className="h-6 w-6" aria-hidden="true" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-gray-500">
+              <a href="#" className="text-gray-400 hover:text-gray-500" aria-label="LinkedIn">
                 <span className="sr-only">LinkedIn</span>
-                <Linkedin className="h-6 w-6" />
+                <Linkedin className="h-6 w-6" aria-hidden="true" />
               </a>
             </div>
           </div>
@@ -104,8 +105,11 @@ export function Footer() {
         </div>
       </div>
       <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8">
-        <p className="text-base text-gray-400 text-center">© 2025 YumiMind. Tous droits réservés.</p>
+        <p className="text-base text-gray-400 text-center">
+          © {new Date().getFullYear()} YumiMind. Tous droits réservés.
+        </p>
       </div>
     </footer>
-  );
+  )
 }
+

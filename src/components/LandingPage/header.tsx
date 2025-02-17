@@ -58,7 +58,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link href="/" className="text-2xl font-bold">
+          <Link href="/" className="text-2xl font-bold" aria-label="Accueil YumiMind">
             <Image
               width={176}
               height={32}
@@ -79,19 +79,19 @@ export function Header() {
             />
           </Link>
           <nav className="hidden md:flex space-x-4">
-            <Link href="/categories" className="flex items-center">
+            <Link href="/categories" className="flex items-center" aria-label="Catégories">
                Catégories
             </Link>
-            <Link href="/products" className="flex items-center">
+            <Link href="/products" className="flex items-center" aria-label="Tous les produits">
               Tous les produits
             </Link>
-            <Link href="/meat-seafood" className="flex items-center">
+            <Link href="/meat-seafood" className="flex items-center" aria-label="IA-shoper">
               IA-shoper
             </Link>
           </nav>
         </div>
         <div className="ml-auto flex items-center space-x-4">
-          <form onSubmit={handleSearch} className="hidden md:block">
+          <form onSubmit={handleSearch} className="hidden md:block" aria-label= "Rechercher un produit">
             <Input
               type="search"
               placeholder="Rechercher..."

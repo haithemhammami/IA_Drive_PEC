@@ -4,15 +4,17 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Image from 'next/image'
+import Image from "next/image"
 
 export function TutorialVideo() {
   const [isPlaying, setIsPlaying] = useState(false)
 
   return (
-    <section className="py-20 sm:py-32" id="tutorial">
+    <section className="py-20 sm:py-32" id="tutorial" aria-labelledby="tutorial-title">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center mb-8">Comment ça marche</h2>
+        <h2 id="tutorial-title" className="text-3xl font-bold text-center mb-8">
+          Comment ça marche
+        </h2>
         <motion.div
           className="relative overflow-hidden rounded-2xl bg-gray-900 shadow-xl max-w-3xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
@@ -26,13 +28,14 @@ export function TutorialVideo() {
                 size="lg"
                 className="text-white hover:text-primary transition-all duration-300 transform hover:scale-110"
                 onClick={() => setIsPlaying(true)}
+                aria-label="Lire la vidéo tutorielle"
               >
                 <motion.div
                   className="relative"
                   whileHover={{ scale: 1.1 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <Play className="h-16 w-16" />
+                  <Play className="h-16 w-16" aria-hidden="true" />
                   <div className="absolute inset-0 bg-white opacity-20 rounded-full blur-md animate-pulse"></div>
                 </motion.div>
               </Button>

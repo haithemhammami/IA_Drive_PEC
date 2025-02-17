@@ -1,3 +1,7 @@
+"use client"
+
+import type React from "react"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronLeft, ChevronRight, Star, MessageSquare, Loader2 } from "lucide-react"
@@ -57,7 +61,7 @@ export function CustomerReviews() {
       if (response.ok) {
         await mutate("/api/reviews")
         setNewReview({ nom: "", note: 5, commentaire: "" })
-        setDialogOpen(false) // Fermeture automatique
+        setDialogOpen(false)
       }
     } catch (error) {
       console.error("Error submitting review:", error)
@@ -68,19 +72,25 @@ export function CustomerReviews() {
 
   if (error) {
     return (
-      <section className="py-20 sm:py-32 bg-gray-50 dark:bg-gray-800">
+      <section className="py-20 sm:py-32 bg-gray-50 dark:bg-gray-800" aria-labelledby="reviews-title">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">Ce que disent nos clients</h2>
-          <div className="text-center text-red-500">Impossible de charger les avis</div>
+          <h2 id="reviews-title" className="text-3xl font-bold text-center mb-12">
+            Ce que disent nos clients
+          </h2>
+          <div className="text-center text-red-500" role="alert">
+            Impossible de charger les avis
+          </div>
         </div>
       </section>
     )
   }
 
   return (
-    <section className="py-20 sm:py-32 bg-gray-50 dark:bg-gray-800">
+    <section className="py-20 sm:py-32 bg-gray-50 dark:bg-gray-800" aria-labelledby="reviews-title">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-center mb-12">Ce que disent nos clients</h2>
+        <h2 id="reviews-title" className="text-3xl font-bold text-center mb-12">
+          Ce que disent nos clients
+        </h2>
         <div className="relative max-w-5xl mx-auto">
           <AnimatePresence mode="wait">
             {!Array.isArray(reviews) ? (
@@ -90,7 +100,7 @@ export function CustomerReviews() {
                 exit={{ opacity: 0 }}
                 className="flex justify-center items-center min-h-[200px]"
               >
-                <Loader2 className="w-8 h-8 animate-spin" />
+                <Loader2 className="w-8 h-8 animate-spin" aria-label="Chargement des avis" />
               </motion.div>
             ) : (
               <div className="overflow-hidden rounded-xl">
@@ -110,13 +120,14 @@ export function CustomerReviews() {
                       transition={{ duration: 0.3 }}
                     >
                       <div className="bg-white dark:bg-gray-700 p-8 rounded-lg shadow-lg">
-                        <div className="flex items-center mb-4">
+                        <div className="flex items-center mb-4" aria-label={`Note : ${review.note} sur 5`}>
                           {[...Array(5)].map((_, i) => (
                             <Star
                               key={i}
                               className={`w-6 h-6 ${
                                 i < review.note ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-gray-600"
                               }`}
+                              aria-hidden="true"
                             />
                           ))}
                         </div>
@@ -135,16 +146,18 @@ export function CustomerReviews() {
             size="icon"
             className="absolute top-1/2 -left-4 -translate-y-1/2 bg-white dark:bg-gray-700 shadow-md rounded-full"
             onClick={prevReview}
+            aria-label="Avis précédent"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft className="h-6 w-6" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             className="absolute top-1/2 -right-4 -translate-y-1/2 bg-white dark:bg-gray-700 shadow-md rounded-full"
             onClick={nextReview}
+            aria-label="Avis suivant"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight className="h-6 w-6" aria-hidden="true" />
           </Button>
         </div>
 
@@ -152,7 +165,7 @@ export function CustomerReviews() {
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="glow">
-                <MessageSquare className="mr-2 h-4 w-4" />
+                <MessageSquare className="mr-2 h-4 w-4" aria-hidden="true" />
                 Laisser un avis
               </Button>
             </DialogTrigger>
@@ -189,6 +202,7 @@ export function CustomerReviews() {
                           star <= newReview.note ? "text-yellow-400 fill-current" : "text-gray-300"
                         }`}
                         onClick={() => setNewReview({ ...newReview, note: star })}
+                        aria-label={`Noter ${star} sur 5`}
                       />
                     ))}
                   </div>
@@ -209,7 +223,7 @@ export function CustomerReviews() {
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                       Envoi en cours...
                     </>
                   ) : (
@@ -224,3 +238,4 @@ export function CustomerReviews() {
     </section>
   )
 }
+
