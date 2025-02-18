@@ -268,7 +268,7 @@ export function AIShoppingAssistant({ isOpen: initialIsOpen = false }) {
   const postMissingProducts = async (missingProducts: string[]) => {
     for (const product of missingProducts) {
       try {
-        const response = await fetch("/api/analyses", {
+        const response = await fetch("/api/analysis", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import {prisma} from "@/lib/prisma"
 
 export async function POST(req: Request) {
-  console.log("POST /api/analyses called")
+  console.log("POST /api/analysis called")
   try {
     const { missingProduct } = await req.json()
     console.log("Received missing product:", missingProduct)
