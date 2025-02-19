@@ -1,20 +1,45 @@
-# IA_Drive_PEC
+# YumiMind
 Application Drive alimentaire enrichie par l'intelligence artificielle (IA).
+[yumimind.vercel.app](https://yumimind.vercel.app/)
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-# Projet de Fin d'Année - E-commerce
+# Projet PEC
 
 ## Présentation
 
 Ce projet est une application de commerce électronique développée avec Next.js. Elle permet aux utilisateurs de parcourir et d'acheter des produits, de gérer leur panier, de passer des commandes et de procéder au paiement en ligne. L'application comprend également des fonctionnalités d'administration pour gérer les produits, les catégories, les commandes et les utilisateurs.
 
+---
+
+## Mapping des contributeurs
+
+| Pseudo      | Nom et Prénom       | Responsabilités                                                                |
+|-------------|---------------------|--------------------------------------------------------------------------------|
+| **Haithem** | HAMMAMI Haithem     | Front et backend du back-office , Landing page , IA                            |
+| **Khalida** | BERKI Khalida       | Front et backend du front-office , inscription/connexion , Routes admin protégées |
+
+---
+
 ## Fonctionnalités Principales
+
+### Compte Admin pour accéder au dashboard_Admin 
+
+-Email : Admin@admin.com
+-Mot de passe : Admin@admin.com
 
 ### Gestion des Produits
 
 - Affichage des détails d'un produit spécifique (`/products/[productId]/page.tsx`)
 - Affichage de la liste des produits (`/products/page.tsx`)
+
+### Gestion des Produits_Admin
+
+- CRUD Produit (`/api/products/[id]/route.ts`) / (`/api/products/route.ts`)
+- Gestion du stock et gestion des alertes en temps réel SSE
+
+  ### Gestion des Catégories et Fournisseurs
+
+- CRUD Catégories de produits (`/api/categories`, `/api/categoriesAdmin`)
+- CRUD Fournisseurs (`/api/suppliersAdmin`)
 
 ### Gestion du Panier
 
@@ -40,16 +65,14 @@ Ce projet est une application de commerce électronique développée avec Next.j
 
 - Fonctionnalité de recherche de produits (`/api/search`)
 - Analyse d'images et génération de recettes (`/api/analyze-image`, `/api/generate-recipes`)
-
-### Gestion des Catégories et Fournisseurs
-
-- Gestion des catégories de produits (`/api/categories`, `/api/categoriesAdmin`)
-- Gestion des fournisseurs (`/api/suppliersAdmin`)
+- Récupération des Produits manquants dans le dashboard admin en temps réel SSE (`/api/analysis`)
 
 ### Chat et Alertes
 
 - Fonctionnalité de chat (`/api/chat`)
 - Gestion des alertes (`/api/alerts`)
+
+---
 
 ## Autres Fonctionnalités
 
@@ -74,6 +97,8 @@ Ce projet est une application de commerce électronique développée avec Next.j
 
 - **Types et Interfaces**
   - Définitions de types et interfaces TypeScript (`/types`)
+
+---
 
 ## Procédure de Lancement du Projet en Local
 
@@ -102,9 +127,10 @@ Créez un fichier .env à la racine du projet et ajoutez les variables d'environ
 
     ```
         DATABASE_URL=postgresql://user:password@localhost:5432/mydatabase
-    	JWT_SECRET=your_jwt_secret
+    	  JWT_SECRET=your_jwt_secret
         NEXT_PUBLIC_BASE_URL=http://localhost:3000
         STRIPE_SECRET_KEY=your_stripe_secret_key
+        OPENAI_API_KEY= your OPENAI_API_KEY
 
     ```
 4.  **Initialiser la base de données**
@@ -119,42 +145,10 @@ Créez un fichier .env à la racine du projet et ajoutez les variables d'environ
     # ou
     yarn dev
     ```
+    [http://localhost:3000](http://localhost:3000)
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
 
 # Membres du groupe:
 - [Berki Khalida ](https://github.com/khalidaBerki)
-- [haithem hammami](https://github.com/haithemhammami)
+- [Hammami Haithem](https://github.com/haithemhammami)
