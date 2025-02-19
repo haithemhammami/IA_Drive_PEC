@@ -1,5 +1,6 @@
 # YumiMind
 Application Drive alimentaire enrichie par l'intelligence artificielle (IA).
+
 [yumimind.vercel.app](https://yumimind.vercel.app/)
 
 # Projet PEC
@@ -23,8 +24,8 @@ Ce projet est une application de commerce électronique développée avec Next.j
 
 ### Compte Admin pour accéder au dashboard_Admin 
 
--Email : Admin@admin.com
--Mot de passe : Admin@admin.com
+- Email : Admin@admin.com
+- Mot de passe : Admin@admin.com
 
 ### Gestion des Produits
 
