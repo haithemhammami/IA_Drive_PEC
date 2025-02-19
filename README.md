@@ -37,7 +37,7 @@ Ce projet est une application de commerce électronique développée avec Next.j
 - CRUD Produit (`/api/products/[id]/route.ts`) / (`/api/products/route.ts`)
 - Gestion du stock et gestion des alertes en temps réel SSE
 
-  ### Gestion des Catégories et Fournisseurs
+### Gestion des Catégories et Fournisseurs
 
 - CRUD Catégories de produits (`/api/categories`, `/api/categoriesAdmin`)
 - CRUD Fournisseurs (`/api/suppliersAdmin`)
