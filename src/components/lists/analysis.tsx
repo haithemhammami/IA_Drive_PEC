@@ -111,8 +111,7 @@ const AnalysisList: React.FC = () => {
       {/* Pagination */}
       <div className="mt-4 flex items-center justify-between">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredItems.length)} of {filteredItems.length}{" "}
-          items
+        Affichage de {indexOfFirstItem + 1} à {Math.min(indexOfLastItem, filteredItems.length)} sur {filteredItems.length}{" "} Produits manquants
         </p>
         <div className="flex space-x-2">
           <button
