@@ -26,11 +26,6 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Set OpenAI API key
-      env:
-        OPENAI_API_KEY: ${{ env.OPENAI_API_KEY }}
-      run: echo "OPENAI_API_KEY=${OPENAI_API_KEY}" >> $GITHUB_ENV
-
     - name: Build project
       run: npm run build
 
