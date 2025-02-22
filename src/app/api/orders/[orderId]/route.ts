@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
-import {prisma} from "@/lib/prisma"; // Assurez-vous que prisma est bien importé
+import {prisma} from "@/lib/prisma"; 
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
-//import nodemailer from "nodemailer"; // Import nodemailer for sending emails
+//import nodemailer from "nodemailer"; 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-01-27.acacia" });
 
