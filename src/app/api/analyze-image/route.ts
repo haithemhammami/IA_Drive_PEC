@@ -1,24 +1,24 @@
-import { NextResponse } from "next/server"
-import OpenAI from "openai"
-
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("❌ Clé API OpenAI manquante. Assurez-vous de l'ajouter dans votre fichier .env !")
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { image } = body
-
-    if (!image) {
-      return NextResponse.json({ error: "❌ Aucun URL d'image fourni." }, { status: 400 })
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("❌ Clé API OpenAI manquante. Assurez-vous de l'ajouter dans votre fichier .env !");
     }
 
-    console.log("📸 Analyse de l'image en cours...")
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    const body = await request.json();
+    const { image } = body;
+
+    if (!image) {
+      return NextResponse.json({ error: "❌ Aucun URL d'image fourni." }, { status: 400 });
+    }
+
+    console.log("📸 Analyse de l'image en cours...");
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -61,30 +61,29 @@ export async function POST(request: Request) {
         },
       ],
       response_format: { type: "json_object" },
-    })
+    });
 
-    const content = response.choices[0]?.message?.content
+    const content = response.choices[0]?.message?.content;
 
     if (!content) {
-      console.warn("⚠️ Aucune réponse valide de l'API OpenAI.")
-      return NextResponse.json({ error: "Aucune réponse reçue de l'IA." }, { status: 500 })
+      console.warn("⚠️ Aucune réponse valide de l'API OpenAI.");
+      return NextResponse.json({ error: "Aucune réponse reçue de l'IA." }, { status: 500 });
     }
 
-    console.log("✅ Réponse reçue :", content)
+    console.log("✅ Réponse reçue :", content);
 
-    let analysisResult
+    let analysisResult;
 
     try {
-      analysisResult = JSON.parse(content)
+      analysisResult = JSON.parse(content);
     } catch (parseError) {
-      console.error("❌ Erreur lors de l'analyse de la réponse JSON :", parseError)
-      return NextResponse.json({ error: "Erreur lors de l'analyse de la réponse de l'IA" }, { status: 500 })
+      console.error("❌ Erreur lors de l'analyse de la réponse JSON :", parseError);
+      return NextResponse.json({ error: "Erreur lors de l'analyse de la réponse de l'IA" }, { status: 500 });
     }
 
-    return NextResponse.json(analysisResult)
+    return NextResponse.json(analysisResult);
   } catch (error: unknown) {
-    console.error("❌ Erreur lors de l'analyse de l'image :", error)
-    return NextResponse.json({ error: "Erreur lors de l'analyse de l'image" }, { status: 500 })
+    console.error("❌ Erreur lors de l'analyse de l'image :", error);
+    return NextResponse.json({ error: "Erreur lors de l'analyse de l'image" }, { status: 500 });
   }
 }
-
