@@ -7,11 +7,12 @@ import { loadStripe } from "@stripe/stripe-js";
 
 export default function Home() {
   const amount = 49.99;
-  
-  if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
+
+  const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+  if (!stripePublicKey) {
     throw new Error("NEXT_PUBLIC_STRIPE_PUBLIC_KEY is not defined");
   }
-  const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+  const stripePromise = loadStripe(stripePublicKey);
 
   return (
     <main className="max-w-6xl mx-auto p-10 text-white text-center border m-10 rounded-md bg-gradient-to-tr from-blue-500 to-purple-500">
