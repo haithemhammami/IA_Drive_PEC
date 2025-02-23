@@ -16,12 +16,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
-        node-version: '22'
+        node-version: '20' # Node.js 22 est encore instable pour CI/CD
 
     - name: Install dependencies
       run: npm install
@@ -30,7 +30,6 @@ jobs:
       run: |
         echo "VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }}" >> $GITHUB_ENV
         echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}" >> $GITHUB_ENV
-        echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }}" >> $GITHUB_ENV
 
     - name: Build project
       run: npm run build
@@ -38,10 +37,6 @@ jobs:
     - name: Run tests
       run: npm test
 
-    - name: Deploy to production
+    - name: Deploy to Vercel
       if: github.ref == 'refs/heads/main'
-      env:
-        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      run: npx vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --project-id $VERCEL_PROJECT_ID
+      run: npx vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID
