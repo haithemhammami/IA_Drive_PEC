@@ -3,139 +3,6 @@ import { prisma } from "@/lib/prisma"
 import jwt from "jsonwebtoken"
 import Stripe from "stripe"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2025-01-27.acacia",
-})
-
-export async function GET(request: NextRequest) {
-  const utilisateurId = request.nextUrl.pathname.split("/").pop()
-  const token = request.headers.get("Authorization")?.split(" ")[1]
-
-  if (!token) {
-    return NextResponse.json({ message: "Non authentifié" }, { status: 401 })
-  }
-
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 })
-  }
-
-  let decoded: { userId: number }
-  try {
-    decoded = jwt.verify(token, secret) as { userId: number }
-  } catch (error: unknown) {
-    console.error("Erreur de vérification du token:", error instanceof Error ? error.message : "Erreur inconnue")
-    return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 })
-  }
-
-  if (utilisateurId === "guest") {
-    // Handle guest user logic here
-    return NextResponse.json({ message: "Fonctionnalité pour les invités non implémentée" }, { status: 501 })
-  }
-
-  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
-  if (isNaN(utilisateurIdInt)) {
-    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 })
-  }
-
-  if (decoded.userId !== utilisateurIdInt) {
-    return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 })
-  }
-
-  try {
-    const user = await prisma.utilisateur.findUnique({
-      where: { id: utilisateurIdInt },
-      select: { nom: true },
-    })
-
-    if (!user) {
-      return NextResponse.json({ message: "Utilisateur non trouvé" }, { status: 404 })
-    }
-
-    const cartItems = await prisma.cart.findMany({
-      where: {
-        utilisateurId: utilisateurIdInt,
-      },
-      include: {
-        produit: true,
-      },
-    })
-
-    if (cartItems.length === 0) {
-      return NextResponse.json({ message: "Aucun produit dans le panier." }, { status: 404 })
-    }
-
-    const totalAmount = cartItems.reduce((total, item) => total + item.prix * item.quantite, 0)
-
-    return NextResponse.json({ cartItems, userName: user.nom, totalAmount }, { status: 200 })
-  } catch (error: unknown) {
-    console.error("Erreur lors de la récupération du panier:", (error as Error).message)
-    return NextResponse.json({ message: "Erreur lors de la récupération du panier" }, { status: 500 })
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  const utilisateurId = request.nextUrl.pathname.split("/").pop()
-  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
-  const { productId, removeAll } = await request.json()
-  const productIdInt = Number.parseInt(productId)
-
-  if (isNaN(utilisateurIdInt) || isNaN(productIdInt)) {
-    return NextResponse.json({ message: "ID utilisateur ou produit invalide" }, { status: 400 })
-  }
-
-  const token = request.headers.get("Authorization")?.split(" ")[1]
-  if (!token) {
-    return NextResponse.json({ message: "Non authentifié" }, { status: 401 })
-  }
-
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 })
-  }
-
-  let decoded: { userId: number }
-  try {
-    decoded = jwt.verify(token, secret) as { userId: number }
-  } catch (error: unknown) {
-    console.error("Erreur de vérification du token:", error instanceof Error ? error.message : "Erreur inconnue")
-    return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 })
-  }
-
-  if (decoded.userId !== utilisateurIdInt) {
-    return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 })
-  }
-
-  try {
-    const cartItem = await prisma.cart.findFirst({
-      where: {
-        utilisateurId: utilisateurIdInt,
-        produitId: productIdInt,
-      },
-    })
-
-    if (!cartItem) {
-      return NextResponse.json({ message: "Produit non trouvé dans le panier." }, { status: 404 })
-    }
-
-    if (removeAll || cartItem.quantite === 1) {
-      await prisma.cart.delete({
-        where: { id: cartItem.id },
-      })
-    } else {
-      await prisma.cart.update({
-        where: { id: cartItem.id },
-        data: { quantite: cartItem.quantite - 1 },
-      })
-    }
-
-    return NextResponse.json({ message: "Produit mis à jour dans le panier." }, { status: 200 })
-  } catch (error: unknown) {
-    console.error("Erreur lors de la mise à jour du produit dans le panier:", (error as Error).message)
-    return NextResponse.json({ message: "Erreur lors de la mise à jour du produit dans le panier" }, { status: 500 })
-  }
-}
-
 export async function POST(request: NextRequest) {
   const utilisateurId = request.nextUrl.pathname.split("/").pop()
   const utilisateurIdInt = Number.parseInt(utilisateurId || "")
@@ -167,13 +34,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // ✅ Initialiser Stripe à l'intérieur pour éviter la vérification lors du build
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+    if (!stripeSecretKey) {
+      return NextResponse.json({ message: "Clé Stripe non définie" }, { status: 500 })
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: "2025-01-27.acacia", // Utilise une version stable
+    })
+
     const cartItems = await prisma.cart.findMany({
-      where: {
-        utilisateurId: utilisateurIdInt,
-      },
-      include: {
-        produit: true,
-      },
+      where: { utilisateurId: utilisateurIdInt },
+      include: { produit: true },
     })
 
     if (cartItems.length === 0) {
@@ -243,14 +116,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const utilisateurId = request.nextUrl.pathname.split("/").pop()
   const utilisateurIdInt = Number.parseInt(utilisateurId || "")
-  const { productId, quantity } = await request.json()
-  const productIdInt = Number.parseInt(productId)
 
-  if (isNaN(utilisateurIdInt) || isNaN(productIdInt) || isNaN(quantity)) {
-    return NextResponse.json({ message: "ID utilisateur, produit ou quantité invalide" }, { status: 400 })
+  if (isNaN(utilisateurIdInt)) {
+    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 })
   }
 
   const token = request.headers.get("Authorization")?.split(" ")[1]
@@ -276,25 +147,89 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const cartItem = await prisma.cart.findFirst({
-      where: {
-        utilisateurId: utilisateurIdInt,
-        produitId: productIdInt,
-      },
+    const cartItems = await prisma.cart.findMany({
+      where: { utilisateurId: utilisateurIdInt },
+      include: { produit: true },
     })
 
-    if (!cartItem) {
-      return NextResponse.json({ message: "Produit non trouvé dans le panier." }, { status: 404 })
+    if (cartItems.length === 0) {
+      return NextResponse.json({ message: "Aucun produit dans le panier." }, { status: 404 })
     }
 
-    await prisma.cart.update({
-      where: { id: cartItem.id },
-      data: { quantite: quantity },
-    })
-
-    return NextResponse.json({ message: "Quantité du produit mise à jour dans le panier." }, { status: 200 })
+    return NextResponse.json({ cartItems }, { status: 200 })
   } catch (error: unknown) {
-    console.error("Erreur lors de la mise à jour de la quantité du produit dans le panier:", (error as Error).message)
-    return NextResponse.json({ message: "Erreur lors de la mise à jour de la quantité du produit dans le panier" }, { status: 500 })
+    console.error("Erreur lors de la récupération du panier:", (error as Error).message)
+    return NextResponse.json({ message: "Erreur lors de la récupération du panier" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop();
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "");
+
+  if (isNaN(utilisateurIdInt)) {
+    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
+  }
+
+  const token = request.headers.get("Authorization")?.split(" ")[1];
+  if (!token) {
+    return NextResponse.json({ message: "Non authentifié" }, { status: 401 });
+  }
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
+  }
+
+  let decoded: { userId: number };
+  try {
+    decoded = jwt.verify(token, secret) as { userId: number };
+  } catch (error: unknown) {
+    console.error("Erreur de vérification du token:", error instanceof Error ? error.message : "Erreur inconnue");
+    return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
+  }
+
+  if (decoded.userId !== utilisateurIdInt) {
+    return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 });
+  }
+
+  try {
+    const { productId, removeAll } = await request.json();
+
+    if (removeAll) {
+      await prisma.cart.deleteMany({
+        where: {
+          utilisateurId: utilisateurIdInt,
+          produitId: productId,
+        },
+      });
+    } else {
+      const cartItem = await prisma.cart.findFirst({
+        where: {
+          utilisateurId: utilisateurIdInt,
+          produitId: productId,
+        },
+      });
+
+      if (!cartItem) {
+        return NextResponse.json({ message: "Produit non trouvé dans le panier" }, { status: 404 });
+      }
+
+      if (cartItem.quantite > 1) {
+        await prisma.cart.update({
+          where: { id: cartItem.id },
+          data: { quantite: cartItem.quantite - 1 },
+        });
+      } else {
+        await prisma.cart.delete({
+          where: { id: cartItem.id },
+        });
+      }
+    }
+
+    return NextResponse.json({ message: "Produit supprimé du panier" }, { status: 200 });
+  } catch (error: unknown) {
+    console.error("Erreur lors de la suppression du produit du panier:", (error as Error).message);
+    return NextResponse.json({ message: "Erreur lors de la suppression du produit du panier" }, { status: 500 });
   }
 }

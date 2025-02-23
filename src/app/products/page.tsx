@@ -6,6 +6,8 @@ import Link from "next/link";
 import type { Produit } from "@prisma/client";
 import { jwtDecode } from "jwt-decode";
 import { Button } from "@/components/ui/button";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const dynamic = "force-dynamic"; // Forcer le rendu dynamique
 
@@ -89,6 +91,8 @@ function ProductsPageContent() {
 
       const { cartItem } = await res.json();
       setCart((prevCart) => [...prevCart, cartItem.produit]);
+
+      toast.success("Produit ajouté au panier avec succès !");
     } catch (err: any) {
       console.error("Erreur lors de l'ajout au panier:", err.message);
     }
@@ -163,6 +167,7 @@ function ProductsPageContent() {
             </ul>
           </div>
         )}
+        <ToastContainer />
       </div>
     </div>
   );

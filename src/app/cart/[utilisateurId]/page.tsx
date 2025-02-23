@@ -51,10 +51,17 @@ const UserCartPage = () => {
         setUserName(data.userName);
         setTotalAmount(data.totalAmount);
       } else {
-        const errorData = await res.json();
-        setError(errorData.message);
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await res.json();
+          setError(errorData.message);
+        } else {
+          setError('Une erreur est survenue');
+        }
         if (res.status === 401 || res.status === 403) {
           router.push('/auth/login');
+        } else if (res.status === 405) {
+          setError('Méthode non autorisée');
         }
       }
       setLoading(false);
@@ -93,10 +100,17 @@ const UserCartPage = () => {
         const updatedTotalAmount = cartItems.reduce((total, item) => total + item.prix * item.quantite, 0);
         setTotalAmount(updatedTotalAmount);
       } else {
-        const errorData = await res.json();
-        setError(errorData.message);
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await res.json();
+          setError(errorData.message);
+        } else {
+          setError('Une erreur est survenue');
+        }
         if (res.status === 401 || res.status === 403) {
           router.push('/auth/login');
+        } else if (res.status === 405) {
+          setError('Méthode non autorisée');
         }
       }
     } catch (error) {

@@ -3,9 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Produit } from "@prisma/client";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ProductPage() {
-  const { productId } = useParams();
+  const { productId } = useParams() as { productId: string };
   const [product, setProduct] = useState<Produit | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +71,7 @@ export default function ProductPage() {
       const { cartItem } = await res.json();
       setCart((prevCart) => [...prevCart, cartItem.produit]);
 
-      alert("Produit ajouté au panier avec succès !");
+      toast.success("Produit ajouté au panier avec succès !");
     } catch (err: any) {
       setError(err.message || "Erreur lors de l'ajout au panier");
     }
@@ -102,6 +104,7 @@ export default function ProductPage() {
       ) : (
         <p className="text-center text-gray-600">Produit non trouvé.</p>
       )}
+      <ToastContainer />
     </div>
   );
 }
