@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server"
-import OpenAI from "openai"
-
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("❌ Clé API OpenAI manquante. Assurez-vous de l'ajouter dans votre fichier .env !")
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
 
 export async function POST(request: Request) {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("❌ Clé API OpenAI manquante. Assurez-vous de l'ajouter dans votre fichier .env !");
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
   try {
-    const { ingredients, dish } = await request.json()
+    const { ingredients, dish } = await request.json();
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -40,20 +40,20 @@ export async function POST(request: Request) {
         },
       ],
       response_format: { type: "json_object" },
-    })
+    });
 
-    const content = response.choices[0]?.message?.content
+    const content = response.choices[0]?.message?.content;
 
     if (!content) {
-      return NextResponse.json({ error: "Aucune réponse valide de l'API OpenAI" }, { status: 500 })
+      return NextResponse.json({ error: "Aucune réponse valide de l'API OpenAI" }, { status: 500 });
     }
 
-    const parsedContent = JSON.parse(content)
+    const parsedContent = JSON.parse(content);
 
-    return NextResponse.json(parsedContent)
+    return NextResponse.json(parsedContent);
   } catch (error) {
-    console.error("❌ Erreur lors de la génération des recettes :", error)
-    return NextResponse.json({ error: "Erreur lors de la génération des recettes" }, { status: 500 })
+    console.error("❌ Erreur lors de la génération des recettes :", error);
+    return NextResponse.json({ error: "Erreur lors de la génération des recettes" }, { status: 500 });
   }
 }
 

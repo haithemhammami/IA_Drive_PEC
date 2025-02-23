@@ -1,12 +1,12 @@
 import { NextResponse, NextRequest } from "next/server";
-import {prisma} from "@/lib/prisma"; 
+import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
 //import nodemailer from "nodemailer"; 
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-01-27.acacia" });
-
 export async function GET(request: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-01-27.acacia" });
+
   const orderId = request.nextUrl.pathname.split("/").pop();
   const orderIdInt = Number.parseInt(orderId || "");
 
@@ -66,6 +66,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: "2025-01-27.acacia" });
+
   const orderId = request.nextUrl.pathname.split("/").pop();
   const orderIdInt = Number.parseInt(orderId || "");
 
