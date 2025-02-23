@@ -18,6 +18,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
   const [userId, setUserId] = useState("guest");
+  const [cartItemCount, setCartItemCount] = useState(0);
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -29,7 +30,7 @@ export function Header() {
         });
         const data = response.data as { user?: { id: string } };
         if (data.user) {
-          setUserId((response.data as { user: { id: string } }).user.id);
+          setUserId(data.user.id);
         } else {
           setUserId("guest");
         }
@@ -41,6 +42,31 @@ export function Header() {
 
     fetchUserId();
   }, []);
+
+  useEffect(() => {
+    const fetchCartItemCount = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("No token found");
+        }
+        const response = await axios.get(`/api/cart/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = response.data as { cartItems: { produitId: number, quantite: number }[] };
+        const itemCount = data.cartItems.reduce((total, item) => total + item.quantite, 0);
+        setCartItemCount(itemCount);
+      } catch (error) {
+        console.error("Failed to fetch cart item count:", error);
+      }
+    };
+
+    if (userId !== "guest") {
+      fetchCartItemCount();
+    }
+  }, [userId]);
 
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -85,9 +111,6 @@ export function Header() {
             <Link href="/products" className="flex items-center" aria-label="Tous les produits">
               Tous les produits
             </Link>
-            <Link href="/meat-seafood" className="flex items-center" aria-label="IA-shoper">
-              IA-shoper
-            </Link>
           </nav>
         </div>
         <div className="ml-auto flex items-center space-x-4">
@@ -104,7 +127,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="relative" aria-label="Panier">
               <ShoppingCart className="h-5 w-5" />
               <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center">
-                3
+                {cartItemCount > 0 ? cartItemCount : 0}
               </span>
             </Button>
           </Link>
