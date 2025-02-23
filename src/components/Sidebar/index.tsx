@@ -71,7 +71,7 @@ const menuGroups = [
         route: "#",
         children: [
           { label: "Commandes", route: "/dashboard/lists/orders", icon: <></>, onClick: () => {} },
-          { label: "Analyse", route: "dashboard/lists/analysis", icon: <></>, onClick: () => {} },
+          { label: "Analyse", route: "/dashboard/lists/analysis", icon: <></>, onClick: () => {} },
         ],
       },
 
