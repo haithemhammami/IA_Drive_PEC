@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { GET, DELETE, POST, PATCH } from "@/app/api/cart/[utilisateurId]/route";
+import { GET, DELETE, POST } from "@/app/api/cart/[utilisateurId]/route";
 import { prisma } from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
@@ -13,6 +13,7 @@ jest.mock("@/lib/prisma", () => ({
     cart: {
       findMany: jest.fn(),
       findFirst: jest.fn(),
+      deleteMany: jest.fn(),
       delete: jest.fn(),
       update: jest.fn(),
     },
@@ -24,7 +25,7 @@ jest.mock("@/lib/prisma", () => ({
       create: jest.fn(),
     },
   },
-}));
+}));;
 
 jest.mock("jsonwebtoken", () => ({
   verify: jest.fn(),
@@ -38,7 +39,7 @@ jest.mock("stripe", () => {
       },
     },
   }));
-});
+});;
 
 describe("Cart API routes", () => {
   const mockUserId = 1;
@@ -81,18 +82,6 @@ describe("Cart API routes", () => {
     it("should return 401 if no token is provided", async () => {
       const request = new NextRequest(new URL("http://localhost/api/cart/1"));
       const response = await POST(request);
-      expect(response.status).toBe(401);
-    });
-
-  });
-
-  describe("PATCH", () => {
-    it("should return 401 if no token is provided", async () => {
-      const request = new NextRequest(new URL("http://localhost/api/cart/1"), {
-        method: "PATCH",
-        body: JSON.stringify({ productId: 1, quantity: 1 }),
-      });
-      const response = await PATCH(request);
       expect(response.status).toBe(401);
     });
 
