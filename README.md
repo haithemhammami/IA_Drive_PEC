@@ -16,7 +16,7 @@ Ce projet est une application de commerce électronique développée avec Next.j
 | Pseudo      | Nom et Prénom       | Responsabilités                                                                |
 |-------------|---------------------|--------------------------------------------------------------------------------|
 | **Haithem** | HAMMAMI Haithem     | Front et backend du back-office , Landing page , IA                            |
-| **Khalida** | BERKI Khalida       | Front et backend du front-office , inscription/connexion , Routes admin protégées |
+| **Khalida** | BERKI Khalida       | Front et backend du front-office , inscription/connexion , Routes admin protégées, Test et WORKFLOW DEPLOYEMENT |
 
 ---
 
