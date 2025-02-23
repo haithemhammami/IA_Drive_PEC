@@ -21,7 +21,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20' # Node.js 22 est encore instable pour CI/CD
+        node-version: '20' # Node.js 20 est stable pour CI/CD
 
     - name: Install dependencies
       run: npm install
@@ -30,6 +30,7 @@ jobs:
       run: |
         echo "VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }}" >> $GITHUB_ENV
         echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}" >> $GITHUB_ENV
+        echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID }}" >> $GITHUB_ENV
 
     - name: Build project
       run: npm run build
@@ -39,4 +40,4 @@ jobs:
 
     - name: Deploy to Vercel
       if: github.ref == 'refs/heads/main'
-      run: npx vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID
+      run: npx vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --project $VERCEL_PROJECT_ID
