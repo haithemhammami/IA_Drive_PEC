@@ -115,3 +115,121 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Erreur lors de la création de la commande" }, { status: 500 })
   }
 }
+
+export async function GET(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop()
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "")
+
+  if (isNaN(utilisateurIdInt)) {
+    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 })
+  }
+
+  const token = request.headers.get("Authorization")?.split(" ")[1]
+  if (!token) {
+    return NextResponse.json({ message: "Non authentifié" }, { status: 401 })
+  }
+
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 })
+  }
+
+  let decoded: { userId: number }
+  try {
+    decoded = jwt.verify(token, secret) as { userId: number }
+  } catch (error: unknown) {
+    console.error("Erreur de vérification du token:", error instanceof Error ? error.message : "Erreur inconnue")
+    return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 })
+  }
+
+  if (decoded.userId !== utilisateurIdInt) {
+    return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 })
+  }
+
+  try {
+    const cartItems = await prisma.cart.findMany({
+      where: { utilisateurId: utilisateurIdInt },
+      include: { produit: true },
+    })
+
+    if (cartItems.length === 0) {
+      return NextResponse.json({ message: "Aucun produit dans le panier." }, { status: 404 })
+    }
+
+    return NextResponse.json({ cartItems }, { status: 200 })
+  } catch (error: unknown) {
+    console.error("Erreur lors de la récupération du panier:", (error as Error).message)
+    return NextResponse.json({ message: "Erreur lors de la récupération du panier" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const utilisateurId = request.nextUrl.pathname.split("/").pop();
+  const utilisateurIdInt = Number.parseInt(utilisateurId || "");
+
+  if (isNaN(utilisateurIdInt)) {
+    return NextResponse.json({ message: "ID utilisateur invalide" }, { status: 400 });
+  }
+
+  const token = request.headers.get("Authorization")?.split(" ")[1];
+  if (!token) {
+    return NextResponse.json({ message: "Non authentifié" }, { status: 401 });
+  }
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return NextResponse.json({ message: "JWT secret non défini" }, { status: 500 });
+  }
+
+  let decoded: { userId: number };
+  try {
+    decoded = jwt.verify(token, secret) as { userId: number };
+  } catch (error: unknown) {
+    console.error("Erreur de vérification du token:", error instanceof Error ? error.message : "Erreur inconnue");
+    return NextResponse.json({ message: "Token invalide ou expiré" }, { status: 401 });
+  }
+
+  if (decoded.userId !== utilisateurIdInt) {
+    return NextResponse.json({ message: "Accès non autorisé" }, { status: 403 });
+  }
+
+  try {
+    const { productId, removeAll } = await request.json();
+
+    if (removeAll) {
+      await prisma.cart.deleteMany({
+        where: {
+          utilisateurId: utilisateurIdInt,
+          produitId: productId,
+        },
+      });
+    } else {
+      const cartItem = await prisma.cart.findFirst({
+        where: {
+          utilisateurId: utilisateurIdInt,
+          produitId: productId,
+        },
+      });
+
+      if (!cartItem) {
+        return NextResponse.json({ message: "Produit non trouvé dans le panier" }, { status: 404 });
+      }
+
+      if (cartItem.quantite > 1) {
+        await prisma.cart.update({
+          where: { id: cartItem.id },
+          data: { quantite: cartItem.quantite - 1 },
+        });
+      } else {
+        await prisma.cart.delete({
+          where: { id: cartItem.id },
+        });
+      }
+    }
+
+    return NextResponse.json({ message: "Produit supprimé du panier" }, { status: 200 });
+  } catch (error: unknown) {
+    console.error("Erreur lors de la suppression du produit du panier:", (error as Error).message);
+    return NextResponse.json({ message: "Erreur lors de la suppression du produit du panier" }, { status: 500 });
+  }
+}
