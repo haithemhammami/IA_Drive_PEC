@@ -1,11 +1,12 @@
 import { OpenAI } from 'openai';
 import { prisma } from '@/lib/prisma';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
+
 
 export async function POST(req: Request) {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY || '',
+  });
   try {
     // Extraire le message envoyé dans la requête
     const { message }: { message: string } = await req.json();

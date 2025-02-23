@@ -1,21 +1,21 @@
-import { NextResponse } from "next/server"
-import OpenAI from "openai"
-
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("❌ Clé API OpenAI manquante. Assurez-vous de l'ajouter dans votre fichier .env !")
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
 
 export async function POST(request: Request) {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("❌ Clé API OpenAI manquante. Assurez-vous de l'ajouter dans votre fichier .env !");
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
   try {
     const { messages, currentDish, detectedIngredients, suggestedIngredients, missingIngredients } =
-      await request.json()
+      await request.json();
 
     if (!Array.isArray(messages) || messages.length === 0 || !messages.every((m) => m.role && m.content)) {
-      return NextResponse.json({ error: "Format de messages invalide" }, { status: 400 })
+      return NextResponse.json({ error: "Format de messages invalide" }, { status: 400 });
     }
 
     const systemMessage = `
@@ -60,34 +60,34 @@ export async function POST(request: Request) {
         "purchaseRequest": ["Nom du produit 1", "Nom du produit 2", ...],
         "newDish": "Nouveau plat si changé"
       }
-    `
+    `;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "system", content: systemMessage }, ...messages],
       max_tokens: 1000,
       response_format: { type: "json_object" },
-    })
+    });
 
-    const content = response.choices[0]?.message?.content
+    const content = response.choices[0]?.message?.content;
 
     if (!content) {
-      return NextResponse.json({ error: "Aucune réponse valide de l'API OpenAI" }, { status: 500 })
+      return NextResponse.json({ error: "Aucune réponse valide de l'API OpenAI" }, { status: 500 });
     }
 
-    let parsedContent
+    let parsedContent;
 
     try {
-      parsedContent = JSON.parse(content)
+      parsedContent = JSON.parse(content);
     } catch (parseError) {
-      console.error("❌ Erreur lors de l'analyse de la réponse JSON :", parseError)
-      return NextResponse.json({ error: "Erreur lors de l'analyse de la réponse de l'IA" }, { status: 500 })
+      console.error("❌ Erreur lors de l'analyse de la réponse JSON :", parseError);
+      return NextResponse.json({ error: "Erreur lors de l'analyse de la réponse de l'IA" }, { status: 500 });
     }
 
-    return NextResponse.json(parsedContent)
+    return NextResponse.json(parsedContent);
   } catch (error) {
-    console.error("❌ Erreur dans le chat :", error)
-    return NextResponse.json({ error: "Erreur lors du traitement de la requête de chat" }, { status: 500 })
+    console.error("❌ Erreur dans le chat :", error);
+    return NextResponse.json({ error: "Erreur lors du traitement de la requête de chat" }, { status: 500 });
   }
 }
 
